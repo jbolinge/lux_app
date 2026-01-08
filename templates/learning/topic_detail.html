@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.name }} - LearnLux{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{% url 'learning:topics' %}" class="text-primary-600 hover:text-primary-700">Topics</a></li>
+            {% if topic.parent %}
+            <li class="text-slate-400">/</li>
+            <li><a href="{% url 'learning:topic_detail' topic.parent.slug %}" class="text-primary-600 hover:text-primary-700">{{ topic.parent.name }}</a></li>
+            {% endif %}
+            <li class="text-slate-400">/</li>
+            <li class="text-slate-600">{{ topic.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Topic Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">{{ topic.name }}</h1>
+                <span class="inline-block mt-2 px-3 py-1 text-sm rounded-full
+                    {% if topic.difficulty_level == 1 %}bg-green-100 text-green-700
+                    {% elif topic.difficulty_level == 2 %}bg-yellow-100 text-yellow-700
+                    {% else %}bg-red-100 text-red-700{% endif %}">
+                    {% if topic.difficulty_level == 1 %}Beginner
+                    {% elif topic.difficulty_level == 2 %}Intermediate
+                    {% else %}Advanced{% endif %}
+                </span>
+            </div>
+            <a href="{% url 'learning:study_topic' topic.id %}" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-sm">
+                Start Learning
+            </a>
+        </div>
+
+        {% if topic.description %}
+        <p class="text-slate-600 mb-4">{{ topic.description }}</p>
+        {% endif %}
+
+        <div class="flex flex-wrap gap-6 text-sm">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">📝</span>
+                <div>
+                    <div class="font-semibold text-slate-900">{{ vocab_count }}</div>
+                    <div class="text-slate-600">Vocabulary cards</div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">💬</span>
+                <div>
+                    <div class="font-semibold text-slate-900">{{ phrase_count }}</div>
+                    <div class="text-slate-600">Phrase cards</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtopics -->
+    {% if subtopics %}
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 mb-6">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h2 class="text-lg font-semibold text-slate-900">Subtopics</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-4">
+                {% for subtopic in subtopics %}
+                <a href="{% url 'learning:topic_detail' subtopic.slug %}" class="block p-4 border border-slate-200 rounded-lg hover:border-primary-300 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-medium text-slate-900">{{ subtopic.name }}</h3>
+                        <span class="px-2 py-1 text-xs rounded-full
+                            {% if subtopic.difficulty_level == 1 %}bg-green-100 text-green-700
+                            {% elif subtopic.difficulty_level == 2 %}bg-yellow-100 text-yellow-700
+                            {% else %}bg-red-100 text-red-700{% endif %}">
+                            {% if subtopic.difficulty_level == 1 %}Beginner
+                            {% elif subtopic.difficulty_level == 2 %}Intermediate
+                            {% else %}Advanced{% endif %}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-600">{{ subtopic.get_card_count }} cards</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Study Options -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h2 class="text-lg font-semibold text-slate-900">Study Options</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <a href="{% url 'learning:study_topic' topic.id %}?direction=lux_to_eng" class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-primary-300 hover:bg-slate-50 transition-colors">
+                <div>
+                    <h3 class="font-medium text-slate-900">Luxembourgish → English</h3>
+                    <p class="text-sm text-slate-600">See Luxembourgish, type English translation</p>
+                </div>
+                <span class="text-2xl">🇱🇺 → 🇬🇧</span>
+            </a>
+            <a href="{% url 'learning:study_topic' topic.id %}?direction=eng_to_lux" class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-primary-300 hover:bg-slate-50 transition-colors">
+                <div>
+                    <h3 class="font-medium text-slate-900">English → Luxembourgish</h3>
+                    <p class="text-sm text-slate-600">See English, type Luxembourgish translation</p>
+                </div>
+                <span class="text-2xl">🇬🇧 → 🇱🇺</span>
+            </a>
+            <a href="{% url 'learning:study_topic' topic.id %}?direction=mixed" class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-primary-300 hover:bg-slate-50 transition-colors">
+                <div>
+                    <h3 class="font-medium text-slate-900">Mixed Practice</h3>
+                    <p class="text-sm text-slate-600">Random direction for each card</p>
+                </div>
+                <span class="text-2xl">🔀</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

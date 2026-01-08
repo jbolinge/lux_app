@@ -1,0 +1,119 @@
+<nav class="bg-white shadow-sm border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <!-- Logo and Brand -->
+            <div class="flex items-center">
+                <a href="{% url 'learning:dashboard' %}" class="flex items-center space-x-2">
+                    <span class="text-2xl">🇱🇺</span>
+                    <span class="text-xl font-bold text-primary-600">LearnLux</span>
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'learning:dashboard' %}" class="text-slate-600 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'learning:topics' %}" class="text-slate-600 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">
+                        Topics
+                    </a>
+                    <a href="{% url 'progress:statistics' %}" class="text-slate-600 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">
+                        Progress
+                    </a>
+                    <div class="relative ml-3">
+                        <button type="button" id="user-menu-button" class="flex items-center space-x-2 text-slate-600 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">
+                            <span>{{ user.display_name|default:user.username }}</span>
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-slate-200">
+                            <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                Profile
+                            </a>
+                            <form method="post" action="{% url 'accounts:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-slate-600 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">
+                        Login
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        Sign Up
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="flex items-center md:hidden">
+                <button type="button" id="mobile-menu-button" class="text-slate-600 hover:text-primary-600 p-2">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+            {% if user.is_authenticated %}
+                <a href="{% url 'learning:dashboard' %}" class="block text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                    Dashboard
+                </a>
+                <a href="{% url 'learning:topics' %}" class="block text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                    Topics
+                </a>
+                <a href="{% url 'progress:statistics' %}" class="block text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                    Progress
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="block text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                    Profile
+                </a>
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="block w-full text-left text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                        Logout
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="block text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                    Login
+                </a>
+                <a href="{% url 'accounts:register' %}" class="block text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-3 py-2 rounded-md text-base font-medium">
+                    Sign Up
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+
+    // User menu toggle
+    const userMenuButton = document.getElementById('user-menu-button');
+    if (userMenuButton) {
+        userMenuButton.addEventListener('click', function() {
+            document.getElementById('user-menu').classList.toggle('hidden');
+        });
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    }
+</script>

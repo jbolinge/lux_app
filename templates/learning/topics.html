@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Topics - LearnLux{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900">Topics</h1>
+        <p class="mt-2 text-slate-600">Choose a topic to start learning</p>
+    </div>
+
+    <!-- Difficulty Filter -->
+    <div class="mb-6 flex flex-wrap gap-2">
+        <span class="text-sm text-slate-600 py-2">Filter by difficulty:</span>
+        <button class="px-3 py-1 text-sm rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300" data-filter="all">All</button>
+        <button class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700 hover:bg-green-200" data-filter="1">Beginner</button>
+        <button class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200" data-filter="2">Intermediate</button>
+        <button class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700 hover:bg-red-200" data-filter="3">Advanced</button>
+    </div>
+
+    {% if topics %}
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="topics-grid">
+        {% for topic in topics %}
+        <div class="topic-card bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow" data-difficulty="{{ topic.difficulty_level }}">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ topic.name }}</h2>
+                    <span class="px-2 py-1 text-xs rounded-full
+                        {% if topic.difficulty_level == 1 %}bg-green-100 text-green-700
+                        {% elif topic.difficulty_level == 2 %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-red-100 text-red-700{% endif %}">
+                        {% if topic.difficulty_level == 1 %}Beginner
+                        {% elif topic.difficulty_level == 2 %}Intermediate
+                        {% else %}Advanced{% endif %}
+                    </span>
+                </div>
+
+                {% if topic.description %}
+                <p class="text-slate-600 text-sm mb-4">{{ topic.description|truncatewords:20 }}</p>
+                {% endif %}
+
+                <div class="flex items-center justify-between text-sm text-slate-500 mb-4">
+                    <span>{{ topic.get_card_count }} cards</span>
+                    {% if topic.children.count > 0 %}
+                    <span>{{ topic.children.count }} subtopics</span>
+                    {% endif %}
+                </div>
+
+                <div class="flex gap-2">
+                    <a href="{% url 'learning:topic_detail' topic.slug %}" class="flex-1 text-center px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 text-sm font-medium">
+                        View Details
+                    </a>
+                    <a href="{% url 'learning:study_topic' topic.id %}" class="flex-1 text-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm font-medium">
+                        Start Learning
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <span class="text-6xl mb-4 block">📚</span>
+        <h2 class="text-xl font-semibold text-slate-900 mb-2">No Topics Yet</h2>
+        <p class="text-slate-600">Topics will appear here once content is added.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Simple filter functionality
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            document.querySelectorAll('.topic-card').forEach(card => {
+                if (filter === 'all' || card.dataset.difficulty === filter) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

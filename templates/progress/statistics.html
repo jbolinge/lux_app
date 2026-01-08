@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - LearnLux{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900">Your Progress</h1>
+        <p class="mt-2 text-slate-600">Track your Luxembourgish learning journey</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div class="text-4xl font-bold text-primary-600">{{ stats.total_cards_studied }}</div>
+            <div class="text-sm text-slate-600 mt-1">Total Cards Studied</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div class="text-4xl font-bold text-green-500">{{ accuracy }}%</div>
+            <div class="text-sm text-slate-600 mt-1">Overall Accuracy</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div class="text-4xl font-bold text-secondary-500">{{ stats.current_streak }}</div>
+            <div class="text-sm text-slate-600 mt-1">Current Streak 🔥</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div class="text-4xl font-bold text-purple-500">{{ stats.longest_streak }}</div>
+            <div class="text-sm text-slate-600 mt-1">Longest Streak</div>
+        </div>
+    </div>
+
+    <!-- Detailed Stats -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">Answer Breakdown</h2>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-600">Correct Answers</span>
+                        <span class="font-medium text-green-600">{{ stats.total_correct }}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3">
+                        <div class="bg-green-500 h-3 rounded-full" style="width: {{ accuracy }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-600">Incorrect Answers</span>
+                        <span class="font-medium text-red-600">{{ stats.total_incorrect }}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3">
+                        <div class="bg-red-500 h-3 rounded-full" style="width: {{ incorrect_pct }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">Study History</h2>
+            {% if stats.last_study_date %}
+            <p class="text-slate-600 mb-2">Last studied: {{ stats.last_study_date }}</p>
+            {% else %}
+            <p class="text-slate-600 mb-2">You haven't started studying yet!</p>
+            {% endif %}
+            <a href="{% url 'progress:history' %}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                View full history →
+            </a>
+        </div>
+    </div>
+
+    <!-- Activity Chart Placeholder -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-8">
+        <h2 class="text-lg font-semibold text-slate-900 mb-4">Activity (Last 30 Days)</h2>
+        <div id="activity-chart" class="h-48 flex items-end justify-between gap-1">
+            {% for day in daily_activity %}
+            <div class="flex-1 bg-primary-500 rounded-t" style="height: {% widthratio day.count 10 100 %}px; min-height: 4px;" title="{{ day.date }}: {{ day.count }} cards"></div>
+            {% empty %}
+            <div class="w-full text-center text-slate-500 py-8">
+                <p>No activity data yet. Start studying to see your progress!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="grid md:grid-cols-2 gap-4">
+        <a href="{% url 'progress:topic_progress' %}" class="block bg-white rounded-lg shadow-sm border border-slate-200 p-6 hover:border-primary-300 transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold text-slate-900">Topic Progress</h3>
+                    <p class="text-sm text-slate-600">See your progress by topic</p>
+                </div>
+                <span class="text-2xl">📊</span>
+            </div>
+        </a>
+        <a href="{% url 'progress:history' %}" class="block bg-white rounded-lg shadow-sm border border-slate-200 p-6 hover:border-primary-300 transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold text-slate-900">Review History</h3>
+                    <p class="text-sm text-slate-600">See all your past reviews</p>
+                </div>
+                <span class="text-2xl">📜</span>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

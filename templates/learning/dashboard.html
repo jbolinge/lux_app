@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LearnLux{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900">
+            Moien, {{ user.get_display_name }}! 👋
+        </h1>
+        <p class="mt-2 text-slate-600">Ready to continue learning Luxembourgish?</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-3xl font-bold text-primary-600">{{ stats.total_cards_studied }}</div>
+            <div class="text-sm text-slate-600">Cards Studied</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-3xl font-bold text-green-500">{{ stats.accuracy }}%</div>
+            <div class="text-sm text-slate-600">Accuracy</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-3xl font-bold text-secondary-500">{{ stats.current_streak }}</div>
+            <div class="text-sm text-slate-600">Day Streak 🔥</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-3xl font-bold text-yellow-500">{{ cards_due }}</div>
+            <div class="text-sm text-slate-600">Cards Due</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <a href="{% url 'learning:study' %}" class="block bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg shadow-lg p-6 text-white hover:from-primary-600 hover:to-primary-700 transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold">Continue Learning</h2>
+                    <p class="mt-1 text-primary-100">Pick up where you left off</p>
+                </div>
+                <span class="text-4xl">📚</span>
+            </div>
+        </a>
+
+        {% if cards_due > 0 %}
+        <a href="{% url 'learning:study' %}?review=true" class="block bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-lg shadow-lg p-6 text-white hover:from-secondary-600 hover:to-secondary-700 transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold">Review Cards</h2>
+                    <p class="mt-1 text-secondary-100">{{ cards_due }} cards due for review</p>
+                </div>
+                <span class="text-4xl">🔄</span>
+            </div>
+        </a>
+        {% else %}
+        <div class="block bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold">All Caught Up!</h2>
+                    <p class="mt-1 text-green-100">No cards due for review</p>
+                </div>
+                <span class="text-4xl">✨</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Topics Overview -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-slate-900">Topics</h2>
+            <a href="{% url 'learning:topics' %}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                View All →
+            </a>
+        </div>
+        <div class="p-6">
+            {% if topics %}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for topic in topics|slice:":6" %}
+                <a href="{% url 'learning:topic_detail' topic.slug %}" class="block p-4 border border-slate-200 rounded-lg hover:border-primary-300 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-medium text-slate-900">{{ topic.name }}</h3>
+                        <span class="px-2 py-1 text-xs rounded-full
+                            {% if topic.difficulty_level == 1 %}bg-green-100 text-green-700
+                            {% elif topic.difficulty_level == 2 %}bg-yellow-100 text-yellow-700
+                            {% else %}bg-red-100 text-red-700{% endif %}">
+                            {% if topic.difficulty_level == 1 %}Beginner
+                            {% elif topic.difficulty_level == 2 %}Intermediate
+                            {% else %}Advanced{% endif %}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-600">{{ topic.get_card_count }} cards</p>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-slate-600 text-center py-8">No topics available yet. Check back soon!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

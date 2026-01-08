@@ -1,0 +1,33 @@
+[project]
+name = "learnlux"
+version = "0.1.0"
+description = "A flashcard-based web application for learning Luxembourgish"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+    "pytest-cov>=4.1",
+    "playwright>=1.40",
+    "pytest-playwright>=0.4",
+    "ruff>=0.1",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "learnlux.settings.development"
+python_files = ["test_*.py", "*_test.py"]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []

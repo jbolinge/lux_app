@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Study{% if topic %} - {{ topic.name }}{% endif %} - LearnLux{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Study Header -->
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">
+                {% if topic %}{{ topic.name }}{% else %}Study Session{% endif %}
+            </h1>
+            <p class="text-sm text-slate-600">Type your answer and press Enter</p>
+        </div>
+        <a href="{% url 'learning:dashboard' %}" class="text-slate-600 hover:text-slate-900">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </a>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mb-6">
+        <div class="flex justify-between text-sm text-slate-600 mb-1">
+            <span>Progress</span>
+            <span id="progress-text">0 / 10</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2">
+            <div id="progress-bar" class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Flashcard -->
+    <div id="flashcard-container" class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mb-6">
+        <!-- Card Content -->
+        <div class="p-8 text-center" id="card-front">
+            <div class="text-sm text-slate-500 mb-2" id="direction-label">Luxembourgish → English</div>
+            <div class="text-3xl font-bold text-slate-900 mb-4" id="question-text">Loading...</div>
+            <div class="text-sm text-slate-500" id="card-type-label"></div>
+        </div>
+
+        <!-- Answer Input -->
+        <div class="bg-slate-50 p-6 border-t border-slate-200">
+            <form id="answer-form">
+                <label for="answer-input" class="block text-sm font-medium text-slate-700 mb-2">
+                    Your answer:
+                </label>
+                <input type="text" id="answer-input" name="answer"
+                    class="w-full px-4 py-3 text-lg border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Type your answer..."
+                    autocomplete="off"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false">
+                <button type="submit" id="submit-btn"
+                    class="mt-4 w-full py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    Check Answer
+                </button>
+            </form>
+        </div>
+
+        <!-- Result Display (hidden initially) -->
+        <div id="result-section" class="hidden p-6 border-t border-slate-200">
+            <div id="result-message" class="text-center mb-4"></div>
+            <div id="correct-answer" class="text-center text-slate-600"></div>
+            <button id="next-btn"
+                class="mt-4 w-full py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Next Card
+            </button>
+        </div>
+    </div>
+
+    <!-- Session Stats -->
+    <div class="grid grid-cols-3 gap-4 text-center">
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-green-500" id="correct-count">0</div>
+            <div class="text-xs text-slate-600">Correct</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-red-500" id="incorrect-count">0</div>
+            <div class="text-xs text-slate-600">Incorrect</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="text-2xl font-bold text-primary-600" id="accuracy">0%</div>
+            <div class="text-xs text-slate-600">Accuracy</div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Complete Modal -->
+<div id="complete-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-8 text-center">
+        <span class="text-6xl mb-4 block">🎉</span>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Session Complete!</h2>
+        <p class="text-slate-600 mb-6">Great job practicing Luxembourgish!</p>
+
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-slate-50 rounded-lg p-3">
+                <div class="text-xl font-bold text-green-500" id="final-correct">0</div>
+                <div class="text-xs text-slate-600">Correct</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-3">
+                <div class="text-xl font-bold text-red-500" id="final-incorrect">0</div>
+                <div class="text-xs text-slate-600">Incorrect</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-3">
+                <div class="text-xl font-bold text-primary-600" id="final-accuracy">0%</div>
+                <div class="text-xs text-slate-600">Accuracy</div>
+            </div>
+        </div>
+
+        <div class="flex gap-4">
+            <a href="{% url 'learning:dashboard' %}" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200">
+                Dashboard
+            </a>
+            <button onclick="location.reload()" class="flex-1 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700">
+                Study More
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Study session state
+const state = {
+    currentCard: null,
+    cardsStudied: 0,
+    correctCount: 0,
+    incorrectCount: 0,
+    sessionSize: 10,
+    topicId: {% if topic %}{{ topic.id }}{% else %}null{% endif %},
+    direction: new URLSearchParams(window.location.search).get('direction') || 'mixed',
+};
+
+// DOM elements
+const questionText = document.getElementById('question-text');
+const directionLabel = document.getElementById('direction-label');
+const cardTypeLabel = document.getElementById('card-type-label');
+const answerInput = document.getElementById('answer-input');
+const answerForm = document.getElementById('answer-form');
+const submitBtn = document.getElementById('submit-btn');
+const resultSection = document.getElementById('result-section');
+const resultMessage = document.getElementById('result-message');
+const correctAnswer = document.getElementById('correct-answer');
+const nextBtn = document.getElementById('next-btn');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const correctCountEl = document.getElementById('correct-count');
+const incorrectCountEl = document.getElementById('incorrect-count');
+const accuracyEl = document.getElementById('accuracy');
+const completeModal = document.getElementById('complete-modal');
+
+// Get CSRF token
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+        document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+}
+
+// Fetch next card
+async function fetchNextCard() {
+    const currentDirection = state.direction === 'mixed'
+        ? (Math.random() < 0.5 ? 'lux_to_eng' : 'eng_to_lux')
+        : state.direction;
+
+    const params = new URLSearchParams({
+        direction: currentDirection,
+    });
+    if (state.topicId) {
+        params.append('topic_id', state.topicId);
+    }
+
+    try {
+        const response = await fetch(`/api/next-card/?${params}`);
+        const data = await response.json();
+
+        if (data.card) {
+            state.currentCard = data.card;
+            displayCard(data.card);
+        } else {
+            showComplete();
+        }
+    } catch (error) {
+        console.error('Error fetching card:', error);
+        questionText.textContent = 'Error loading card. Please try again.';
+    }
+}
+
+// Display card
+function displayCard(card) {
+    questionText.textContent = card.question;
+    directionLabel.textContent = card.direction === 'lux_to_eng'
+        ? 'Luxembourgish → English'
+        : 'English → Luxembourgish';
+    cardTypeLabel.textContent = card.type === 'vocabulary' ? 'Vocabulary' : 'Phrase';
+
+    // Reset UI
+    answerInput.value = '';
+    answerInput.disabled = false;
+    submitBtn.disabled = false;
+    resultSection.classList.add('hidden');
+    answerForm.classList.remove('hidden');
+    answerInput.focus();
+}
+
+// Check answer
+async function checkAnswer(answer) {
+    if (!state.currentCard || !answer.trim()) return;
+
+    answerInput.disabled = true;
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/check-answer/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: JSON.stringify({
+                card_type: state.currentCard.type,
+                card_id: state.currentCard.id,
+                answer: answer,
+                direction: state.currentCard.direction,
+            }),
+        });
+
+        const data = await response.json();
+        showResult(data);
+    } catch (error) {
+        console.error('Error checking answer:', error);
+    }
+}
+
+// Show result
+function showResult(data) {
+    state.cardsStudied++;
+
+    if (data.is_correct) {
+        state.correctCount++;
+        resultMessage.innerHTML = `
+            <div class="text-green-500 text-5xl mb-2">✓</div>
+            <div class="text-xl font-bold text-green-600">Correct!</div>
+        `;
+        if (data.match_quality === 'close') {
+            resultMessage.innerHTML += `<div class="text-sm text-slate-500 mt-1">Close match accepted</div>`;
+        }
+    } else {
+        state.incorrectCount++;
+        resultMessage.innerHTML = `
+            <div class="text-red-500 text-5xl mb-2">✗</div>
+            <div class="text-xl font-bold text-red-600">Not quite</div>
+        `;
+    }
+
+    correctAnswer.innerHTML = `<span class="font-medium">Correct answer:</span> ${data.correct_answer}`;
+
+    // Update stats
+    updateStats();
+
+    // Show result section
+    answerForm.classList.add('hidden');
+    resultSection.classList.remove('hidden');
+
+    // Check if session is complete
+    if (state.cardsStudied >= state.sessionSize) {
+        nextBtn.textContent = 'Finish Session';
+    }
+}
+
+// Update stats display
+function updateStats() {
+    const progress = (state.cardsStudied / state.sessionSize) * 100;
+    progressBar.style.width = `${progress}%`;
+    progressText.textContent = `${state.cardsStudied} / ${state.sessionSize}`;
+
+    correctCountEl.textContent = state.correctCount;
+    incorrectCountEl.textContent = state.incorrectCount;
+
+    const accuracy = state.cardsStudied > 0
+        ? Math.round((state.correctCount / state.cardsStudied) * 100)
+        : 0;
+    accuracyEl.textContent = `${accuracy}%`;
+}
+
+// Show complete modal
+function showComplete() {
+    document.getElementById('final-correct').textContent = state.correctCount;
+    document.getElementById('final-incorrect').textContent = state.incorrectCount;
+    const accuracy = state.cardsStudied > 0
+        ? Math.round((state.correctCount / state.cardsStudied) * 100)
+        : 0;
+    document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+    completeModal.classList.remove('hidden');
+}
+
+// Event listeners
+answerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    checkAnswer(answerInput.value);
+});
+
+nextBtn.addEventListener('click', () => {
+    if (state.cardsStudied >= state.sessionSize) {
+        showComplete();
+    } else {
+        fetchNextCard();
+    }
+});
+
+// Initialize
+fetchNextCard();
+</script>
+{% endblock %}
