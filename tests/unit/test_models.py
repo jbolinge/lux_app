@@ -4,8 +4,14 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 
 from accounts.models import User
-from cards.models import DifficultyLevel, PhraseCard, RegisterChoice, Topic, VocabularyCard
-from progress.models import CardProgress, ReviewHistory, TopicProgress, UserStats
+from cards.models import (
+    DifficultyLevel,
+    PhraseCard,
+    RegisterChoice,
+    Topic,
+    VocabularyCard,
+)
+from progress.models import CardProgress, TopicProgress, UserStats
 
 
 @pytest.mark.django_db

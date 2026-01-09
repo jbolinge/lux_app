@@ -42,7 +42,7 @@ class TestAccountViews:
 
     def test_login_works(self, client):
         """Test that login works."""
-        user = User.objects.create_user(
+        User.objects.create_user(
             username="testuser",
             email="test@example.com",
             password="testpass123",

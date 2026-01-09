@@ -5,7 +5,6 @@ Implements a mix of new cards and review cards based on spaced repetition.
 """
 
 import random
-from typing import Optional
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -31,7 +30,7 @@ class CardSelector:
 
     def get_next_card(
         self,
-        topic_id: Optional[int] = None,
+        topic_id: int | None = None,
         direction: str = "lux_to_eng",
     ):
         """
@@ -62,7 +61,7 @@ class CardSelector:
         # Fall back to review card if no new cards available
         return self._get_review_card(topic_id)
 
-    def _get_review_card(self, topic_id: Optional[int] = None):
+    def _get_review_card(self, topic_id: int | None = None):
         """
         Get a card that is due for review.
 
@@ -91,7 +90,7 @@ class CardSelector:
 
         return None
 
-    def _get_new_card(self, topic_id: Optional[int] = None):
+    def _get_new_card(self, topic_id: int | None = None):
         """
         Get a card the user hasn't seen yet.
 
@@ -173,7 +172,7 @@ class CardSelector:
 
     def get_session_cards(
         self,
-        topic_id: Optional[int] = None,
+        topic_id: int | None = None,
         count: int = 10,
     ) -> list:
         """

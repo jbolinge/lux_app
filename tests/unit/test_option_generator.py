@@ -29,7 +29,12 @@ class TestOptionGenerator:
     def additional_beginner_cards(self, topic):
         """Create additional beginner cards for wrong options."""
         cards = []
-        for lux, eng in [("Äddi", "Goodbye"), ("Merci", "Thank you"), ("Pardon", "Sorry")]:
+        word_pairs = [
+            ("Äddi", "Goodbye"),
+            ("Merci", "Thank you"),
+            ("Pardon", "Sorry"),
+        ]
+        for lux, eng in word_pairs:
             card = VocabularyCard.objects.create(
                 luxembourgish=lux,
                 english=eng,
@@ -39,7 +44,9 @@ class TestOptionGenerator:
             cards.append(card)
         return cards
 
-    def test_get_options_returns_three_options(self, beginner_card, additional_beginner_cards):
+    def test_get_options_returns_three_options(
+        self, beginner_card, additional_beginner_cards
+    ):
         """Test that get_options returns exactly 3 options."""
         from learning.services.option_generator import OptionGenerator
 
@@ -48,7 +55,9 @@ class TestOptionGenerator:
 
         assert len(result["options"]) == 3
 
-    def test_get_options_includes_correct_answer(self, beginner_card, additional_beginner_cards):
+    def test_get_options_includes_correct_answer(
+        self, beginner_card, additional_beginner_cards
+    ):
         """Test that options include the correct answer."""
         from learning.services.option_generator import OptionGenerator
 
@@ -58,7 +67,9 @@ class TestOptionGenerator:
         assert result["correct_answer"] in result["options"]
         assert result["options"][result["correct_index"]] == result["correct_answer"]
 
-    def test_get_options_lux_to_eng_direction(self, beginner_card, additional_beginner_cards):
+    def test_get_options_lux_to_eng_direction(
+        self, beginner_card, additional_beginner_cards
+    ):
         """Test lux_to_eng direction returns English options."""
         from learning.services.option_generator import OptionGenerator
 
@@ -67,7 +78,9 @@ class TestOptionGenerator:
 
         assert result["correct_answer"] == "Hello"
 
-    def test_get_options_eng_to_lux_direction(self, beginner_card, additional_beginner_cards):
+    def test_get_options_eng_to_lux_direction(
+        self, beginner_card, additional_beginner_cards
+    ):
         """Test eng_to_lux direction returns Luxembourgish options."""
         from learning.services.option_generator import OptionGenerator
 
@@ -282,7 +295,12 @@ class TestOptionGeneratorEdgeCases:
         target.topics.add(topic)
 
         # Create enough other cards
-        for lux, eng in [("Äddi", "Goodbye"), ("Merci", "Thank you"), ("Pardon", "Sorry")]:
+        word_pairs = [
+            ("Äddi", "Goodbye"),
+            ("Merci", "Thank you"),
+            ("Pardon", "Sorry"),
+        ]
+        for lux, eng in word_pairs:
             VocabularyCard.objects.create(
                 luxembourgish=lux,
                 english=eng,

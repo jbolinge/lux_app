@@ -1,6 +1,5 @@
 """Unit tests for learning services."""
 
-import pytest
 from django.utils import timezone
 
 from learning.services.answer_checker import AnswerChecker, MatchQuality

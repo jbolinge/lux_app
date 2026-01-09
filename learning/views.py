@@ -130,7 +130,9 @@ class CheckAnswerView(LoginRequiredMixin, View):
             # Check the answer based on input mode
             if input_mode == "multiple_choice":
                 # For multiple choice, use exact string matching (case-insensitive)
-                is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
+                user_lower = user_answer.strip().lower()
+                correct_lower = correct_answer.strip().lower()
+                is_correct = user_lower == correct_lower
                 result = {
                     "is_correct": is_correct,
                     "match_quality": "exact" if is_correct else "incorrect",
@@ -191,7 +193,11 @@ class NextCardView(LoginRequiredMixin, View):
             input_mode = "text_input"
             options_data = {}
 
-            if card.difficulty_level == DifficultyLevel.BEGINNER and card_type == "vocabulary":
+            is_beginner_vocab = (
+                card.difficulty_level == DifficultyLevel.BEGINNER
+                and card_type == "vocabulary"
+            )
+            if is_beginner_vocab:
                 # Try to generate multiple choice options for beginner cards
                 try:
                     generator = OptionGenerator(card, direction)

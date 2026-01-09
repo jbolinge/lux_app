@@ -6,9 +6,8 @@ following a priority cascade for selecting distractor options.
 """
 
 import random
-from typing import Optional
 
-from cards.models import DifficultyLevel, VocabularyCard
+from cards.models import VocabularyCard
 
 
 class InsufficientOptionsError(Exception):

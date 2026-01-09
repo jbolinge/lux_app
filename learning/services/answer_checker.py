@@ -133,7 +133,7 @@ class AnswerChecker:
         for i, c1 in enumerate(s1):
             current_row = [i + 1]
             for j, c2 in enumerate(s2):
-                # j+1 instead of j since previous_row and current_row are one character longer
+                # j+1 since previous_row and current_row are one char longer
                 insertions = previous_row[j + 1] + 1
                 deletions = current_row[j] + 1
                 substitutions = previous_row[j] + (c1 != c2)
@@ -151,8 +151,6 @@ class AnswerChecker:
         """
         # Check if correct answer contains alternatives
         if "/" in correct:
-            # Split by "/" and check each alternative
-            parts = correct.split("/")
             # Try to reconstruct alternatives
             # This handles "the/a house" -> ["the house", "a house"]
             # Simple implementation: just check if user matches removing the slash

@@ -4,7 +4,18 @@ Management command to load sample Luxembourgish learning data.
 
 from django.core.management.base import BaseCommand
 
-from cards.models import DifficultyLevel, PhraseCard, RegisterChoice, Topic, VocabularyCard
+from cards.models import (
+    DifficultyLevel,
+    PhraseCard,
+    RegisterChoice,
+    Topic,
+    VocabularyCard,
+)
+
+# Aliases for readability and line length
+BEGINNER = DifficultyLevel.BEGINNER
+INTERMEDIATE = DifficultyLevel.INTERMEDIATE
+ADVANCED = DifficultyLevel.ADVANCED
 
 
 class Command(BaseCommand):
@@ -38,7 +49,7 @@ class Command(BaseCommand):
             name="Basics",
             defaults={
                 "description": "Essential words and phrases for beginners",
-                "difficulty_level": DifficultyLevel.BEGINNER,
+                "difficulty_level": BEGINNER,
                 "order": 1,
             },
         )[0]
@@ -48,7 +59,7 @@ class Command(BaseCommand):
             name="Greetings",
             defaults={
                 "description": "Common greetings and farewells",
-                "difficulty_level": DifficultyLevel.BEGINNER,
+                "difficulty_level": BEGINNER,
                 "order": 2,
                 "parent": basics,
             },
@@ -59,7 +70,7 @@ class Command(BaseCommand):
             name="Numbers",
             defaults={
                 "description": "Numbers and counting",
-                "difficulty_level": DifficultyLevel.BEGINNER,
+                "difficulty_level": BEGINNER,
                 "order": 3,
                 "parent": basics,
             },
@@ -70,7 +81,7 @@ class Command(BaseCommand):
             name="Colors",
             defaults={
                 "description": "Colors in Luxembourgish",
-                "difficulty_level": DifficultyLevel.BEGINNER,
+                "difficulty_level": BEGINNER,
                 "order": 4,
             },
         )[0]
@@ -80,7 +91,7 @@ class Command(BaseCommand):
             name="Food & Drink",
             defaults={
                 "description": "Vocabulary for food and beverages",
-                "difficulty_level": DifficultyLevel.BEGINNER,
+                "difficulty_level": BEGINNER,
                 "order": 5,
             },
         )[0]
@@ -90,7 +101,7 @@ class Command(BaseCommand):
             name="Family",
             defaults={
                 "description": "Family members and relationships",
-                "difficulty_level": DifficultyLevel.BEGINNER,
+                "difficulty_level": BEGINNER,
                 "order": 6,
             },
         )[0]
@@ -100,7 +111,7 @@ class Command(BaseCommand):
             name="Daily Life",
             defaults={
                 "description": "Common words for everyday situations",
-                "difficulty_level": DifficultyLevel.INTERMEDIATE,
+                "difficulty_level": INTERMEDIATE,
                 "order": 7,
             },
         )[0]
@@ -110,7 +121,7 @@ class Command(BaseCommand):
             name="Travel",
             defaults={
                 "description": "Vocabulary for getting around",
-                "difficulty_level": DifficultyLevel.INTERMEDIATE,
+                "difficulty_level": INTERMEDIATE,
                 "order": 8,
             },
         )[0]
@@ -122,60 +133,60 @@ class Command(BaseCommand):
         """Create vocabulary cards."""
         vocab_data = [
             # Greetings
-            ("Moien", "Hello", topics["greetings"], DifficultyLevel.BEGINNER),
-            ("Äddi", "Goodbye", topics["greetings"], DifficultyLevel.BEGINNER),
-            ("Merci", "Thank you", topics["greetings"], DifficultyLevel.BEGINNER),
-            ("Wann ech gelift", "Please", topics["greetings"], DifficultyLevel.BEGINNER),
-            ("Jo", "Yes", topics["basics"], DifficultyLevel.BEGINNER),
-            ("Nee", "No", topics["basics"], DifficultyLevel.BEGINNER),
+            ("Moien", "Hello", topics["greetings"], BEGINNER),
+            ("Äddi", "Goodbye", topics["greetings"], BEGINNER),
+            ("Merci", "Thank you", topics["greetings"], BEGINNER),
+            ("Wann ech gelift", "Please", topics["greetings"], BEGINNER),
+            ("Jo", "Yes", topics["basics"], BEGINNER),
+            ("Nee", "No", topics["basics"], BEGINNER),
             # Numbers
-            ("eent", "one", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("zwee", "two", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("dräi", "three", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("véier", "four", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("fënnef", "five", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("sechs", "six", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("siwen", "seven", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("aacht", "eight", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("néng", "nine", topics["numbers"], DifficultyLevel.BEGINNER),
-            ("zéng", "ten", topics["numbers"], DifficultyLevel.BEGINNER),
+            ("eent", "one", topics["numbers"], BEGINNER),
+            ("zwee", "two", topics["numbers"], BEGINNER),
+            ("dräi", "three", topics["numbers"], BEGINNER),
+            ("véier", "four", topics["numbers"], BEGINNER),
+            ("fënnef", "five", topics["numbers"], BEGINNER),
+            ("sechs", "six", topics["numbers"], BEGINNER),
+            ("siwen", "seven", topics["numbers"], BEGINNER),
+            ("aacht", "eight", topics["numbers"], BEGINNER),
+            ("néng", "nine", topics["numbers"], BEGINNER),
+            ("zéng", "ten", topics["numbers"], BEGINNER),
             # Colors
-            ("rout", "red", topics["colors"], DifficultyLevel.BEGINNER),
-            ("blo", "blue", topics["colors"], DifficultyLevel.BEGINNER),
-            ("gréng", "green", topics["colors"], DifficultyLevel.BEGINNER),
-            ("giel", "yellow", topics["colors"], DifficultyLevel.BEGINNER),
-            ("schwaarz", "black", topics["colors"], DifficultyLevel.BEGINNER),
-            ("wäiss", "white", topics["colors"], DifficultyLevel.BEGINNER),
+            ("rout", "red", topics["colors"], BEGINNER),
+            ("blo", "blue", topics["colors"], BEGINNER),
+            ("gréng", "green", topics["colors"], BEGINNER),
+            ("giel", "yellow", topics["colors"], BEGINNER),
+            ("schwaarz", "black", topics["colors"], BEGINNER),
+            ("wäiss", "white", topics["colors"], BEGINNER),
             # Food
-            ("Brout", "bread", topics["food"], DifficultyLevel.BEGINNER),
-            ("Waasser", "water", topics["food"], DifficultyLevel.BEGINNER),
-            ("Mëllech", "milk", topics["food"], DifficultyLevel.BEGINNER),
-            ("Kaffi", "coffee", topics["food"], DifficultyLevel.BEGINNER),
-            ("Téi", "tea", topics["food"], DifficultyLevel.BEGINNER),
-            ("Äppel", "apple", topics["food"], DifficultyLevel.BEGINNER),
-            ("Fleesch", "meat", topics["food"], DifficultyLevel.INTERMEDIATE),
-            ("Geméis", "vegetables", topics["food"], DifficultyLevel.INTERMEDIATE),
+            ("Brout", "bread", topics["food"], BEGINNER),
+            ("Waasser", "water", topics["food"], BEGINNER),
+            ("Mëllech", "milk", topics["food"], BEGINNER),
+            ("Kaffi", "coffee", topics["food"], BEGINNER),
+            ("Téi", "tea", topics["food"], BEGINNER),
+            ("Äppel", "apple", topics["food"], BEGINNER),
+            ("Fleesch", "meat", topics["food"], INTERMEDIATE),
+            ("Geméis", "vegetables", topics["food"], INTERMEDIATE),
             # Family
-            ("Mamm", "mother", topics["family"], DifficultyLevel.BEGINNER),
-            ("Papp", "father", topics["family"], DifficultyLevel.BEGINNER),
-            ("Brudder", "brother", topics["family"], DifficultyLevel.BEGINNER),
-            ("Schwëster", "sister", topics["family"], DifficultyLevel.BEGINNER),
-            ("Kand", "child", topics["family"], DifficultyLevel.BEGINNER),
-            ("Grousspapp", "grandfather", topics["family"], DifficultyLevel.INTERMEDIATE),
-            ("Groussmamm", "grandmother", topics["family"], DifficultyLevel.INTERMEDIATE),
+            ("Mamm", "mother", topics["family"], BEGINNER),
+            ("Papp", "father", topics["family"], BEGINNER),
+            ("Brudder", "brother", topics["family"], BEGINNER),
+            ("Schwëster", "sister", topics["family"], BEGINNER),
+            ("Kand", "child", topics["family"], BEGINNER),
+            ("Grousspapp", "grandfather", topics["family"], INTERMEDIATE),
+            ("Groussmamm", "grandmother", topics["family"], INTERMEDIATE),
             # Daily Life
-            ("Haus", "house", topics["daily"], DifficultyLevel.BEGINNER),
-            ("Dësch", "table", topics["daily"], DifficultyLevel.BEGINNER),
-            ("Stull", "chair", topics["daily"], DifficultyLevel.BEGINNER),
-            ("Bett", "bed", topics["daily"], DifficultyLevel.BEGINNER),
-            ("Fënster", "window", topics["daily"], DifficultyLevel.INTERMEDIATE),
-            ("Dier", "door", topics["daily"], DifficultyLevel.INTERMEDIATE),
+            ("Haus", "house", topics["daily"], BEGINNER),
+            ("Dësch", "table", topics["daily"], BEGINNER),
+            ("Stull", "chair", topics["daily"], BEGINNER),
+            ("Bett", "bed", topics["daily"], BEGINNER),
+            ("Fënster", "window", topics["daily"], INTERMEDIATE),
+            ("Dier", "door", topics["daily"], INTERMEDIATE),
             # Travel
-            ("Auto", "car", topics["travel"], DifficultyLevel.BEGINNER),
-            ("Bus", "bus", topics["travel"], DifficultyLevel.BEGINNER),
-            ("Zuch", "train", topics["travel"], DifficultyLevel.BEGINNER),
-            ("Gare", "train station", topics["travel"], DifficultyLevel.INTERMEDIATE),
-            ("Flughafen", "airport", topics["travel"], DifficultyLevel.INTERMEDIATE),
+            ("Auto", "car", topics["travel"], BEGINNER),
+            ("Bus", "bus", topics["travel"], BEGINNER),
+            ("Zuch", "train", topics["travel"], BEGINNER),
+            ("Gare", "train station", topics["travel"], INTERMEDIATE),
+            ("Flughafen", "airport", topics["travel"], INTERMEDIATE),
         ]
 
         count = 0
@@ -192,7 +203,10 @@ class Command(BaseCommand):
         return count
 
     def _create_phrases(self, topics):
-        """Create phrase cards. All phrases are ADVANCED difficulty (text input for sentences)."""
+        """Create phrase cards.
+
+        All phrases are ADVANCED difficulty (text input for sentences).
+        """
         phrase_data = [
             # Greetings
             (
@@ -307,7 +321,7 @@ class Command(BaseCommand):
             card, created = PhraseCard.objects.get_or_create(
                 luxembourgish=lux,
                 english=eng,
-                defaults={"difficulty_level": DifficultyLevel.ADVANCED, "register": register},
+                defaults={"difficulty_level": ADVANCED, "register": register},
             )
             if created:
                 card.topics.add(topic)

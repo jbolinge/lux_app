@@ -32,7 +32,8 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
 
     def form_valid(self, form):
-        messages.success(self.request, f"Welcome back, {form.get_user().get_display_name()}!")
+        display_name = form.get_user().get_display_name()
+        messages.success(self.request, f"Welcome back, {display_name}!")
         return super().form_valid(form)
 
 
