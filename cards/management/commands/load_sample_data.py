@@ -192,49 +192,43 @@ class Command(BaseCommand):
         return count
 
     def _create_phrases(self, topics):
-        """Create phrase cards."""
+        """Create phrase cards. All phrases are ADVANCED difficulty (text input for sentences)."""
         phrase_data = [
             # Greetings
             (
                 "Wéi geet et?",
                 "How are you?",
                 topics["greetings"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.INFORMAL,
             ),
             (
                 "Mir geet et gutt",
                 "I am fine",
                 topics["greetings"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "Wéi geet et Iech?",
                 "How are you? (formal)",
                 topics["greetings"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.FORMAL,
             ),
             (
                 "Ech si frou Iech kennenzeléieren",
                 "Nice to meet you",
                 topics["greetings"],
-                DifficultyLevel.INTERMEDIATE,
                 RegisterChoice.FORMAL,
             ),
             (
                 "Bis muer",
                 "See you tomorrow",
                 topics["greetings"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.INFORMAL,
             ),
             (
                 "Schéinen Dag nach",
                 "Have a nice day",
                 topics["greetings"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             # Basics
@@ -242,35 +236,30 @@ class Command(BaseCommand):
                 "Wéi heescht Dir?",
                 "What is your name? (formal)",
                 topics["basics"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.FORMAL,
             ),
             (
                 "Ech heeschen...",
                 "My name is...",
                 topics["basics"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "Ech verstinn net",
                 "I don't understand",
                 topics["basics"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "Kënnt Dir dat widderhuelen?",
                 "Can you repeat that?",
                 topics["basics"],
-                DifficultyLevel.INTERMEDIATE,
                 RegisterChoice.FORMAL,
             ),
             (
                 "Schwätzt Dir Englesch?",
                 "Do you speak English?",
                 topics["basics"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.FORMAL,
             ),
             # Food
@@ -278,21 +267,18 @@ class Command(BaseCommand):
                 "Ech hunn Honger",
                 "I am hungry",
                 topics["food"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "Ech hunn Duuscht",
                 "I am thirsty",
                 topics["food"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "D'Rechnung, wann ech gelift",
                 "The bill, please",
                 topics["food"],
-                DifficultyLevel.INTERMEDIATE,
                 RegisterChoice.FORMAL,
             ),
             # Travel
@@ -300,31 +286,28 @@ class Command(BaseCommand):
                 "Wou ass...?",
                 "Where is...?",
                 topics["travel"],
-                DifficultyLevel.BEGINNER,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "Wéi wäit ass et?",
                 "How far is it?",
                 topics["travel"],
-                DifficultyLevel.INTERMEDIATE,
                 RegisterChoice.NEUTRAL,
             ),
             (
                 "Ech géif gär eng Kaart",
                 "I would like a ticket",
                 topics["travel"],
-                DifficultyLevel.INTERMEDIATE,
                 RegisterChoice.FORMAL,
             ),
         ]
 
         count = 0
-        for lux, eng, topic, difficulty, register in phrase_data:
+        for lux, eng, topic, register in phrase_data:
             card, created = PhraseCard.objects.get_or_create(
                 luxembourgish=lux,
                 english=eng,
-                defaults={"difficulty_level": difficulty, "register": register},
+                defaults={"difficulty_level": DifficultyLevel.ADVANCED, "register": register},
             )
             if created:
                 card.topics.add(topic)
