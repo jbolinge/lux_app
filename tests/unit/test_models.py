@@ -123,9 +123,78 @@ class TestPhraseCardModel:
             luxembourgish="Wéi geet et?",
             english="How are you?",
             register=RegisterChoice.INFORMAL,
+            difficulty_level=DifficultyLevel.ADVANCED,
         )
         assert card.luxembourgish == "Wéi geet et?"
         assert card.register == RegisterChoice.INFORMAL
+
+
+@pytest.mark.django_db
+class TestCardDifficultyValidation:
+    """Tests for card type difficulty validation."""
+
+    def test_vocabulary_card_allows_beginner(self):
+        """Test VocabularyCard allows BEGINNER difficulty."""
+        card = VocabularyCard.objects.create(
+            luxembourgish="Moien",
+            english="Hello",
+            difficulty_level=DifficultyLevel.BEGINNER,
+        )
+        assert card.difficulty_level == DifficultyLevel.BEGINNER
+
+    def test_vocabulary_card_allows_intermediate(self):
+        """Test VocabularyCard allows INTERMEDIATE difficulty."""
+        card = VocabularyCard.objects.create(
+            luxembourgish="Haus",
+            english="House",
+            difficulty_level=DifficultyLevel.INTERMEDIATE,
+        )
+        assert card.difficulty_level == DifficultyLevel.INTERMEDIATE
+
+    def test_vocabulary_card_rejects_advanced(self):
+        """Test VocabularyCard rejects ADVANCED difficulty."""
+        from django.core.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            VocabularyCard.objects.create(
+                luxembourgish="Moien",
+                english="Hello",
+                difficulty_level=DifficultyLevel.ADVANCED,
+            )
+        assert "difficulty_level" in str(exc_info.value)
+
+    def test_phrase_card_allows_advanced(self):
+        """Test PhraseCard allows ADVANCED difficulty."""
+        card = PhraseCard.objects.create(
+            luxembourgish="Wéi geet et dir?",
+            english="How are you?",
+            difficulty_level=DifficultyLevel.ADVANCED,
+        )
+        assert card.difficulty_level == DifficultyLevel.ADVANCED
+
+    def test_phrase_card_rejects_beginner(self):
+        """Test PhraseCard rejects BEGINNER difficulty."""
+        from django.core.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            PhraseCard.objects.create(
+                luxembourgish="Wéi geet et?",
+                english="How are you?",
+                difficulty_level=DifficultyLevel.BEGINNER,
+            )
+        assert "difficulty_level" in str(exc_info.value)
+
+    def test_phrase_card_rejects_intermediate(self):
+        """Test PhraseCard rejects INTERMEDIATE difficulty."""
+        from django.core.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            PhraseCard.objects.create(
+                luxembourgish="Wéi geet et?",
+                english="How are you?",
+                difficulty_level=DifficultyLevel.INTERMEDIATE,
+            )
+        assert "difficulty_level" in str(exc_info.value)
 
 
 @pytest.mark.django_db

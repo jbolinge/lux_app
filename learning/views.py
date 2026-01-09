@@ -108,6 +108,7 @@ class CheckAnswerView(LoginRequiredMixin, View):
             card_id = data.get("card_id")
             user_answer = data.get("answer", "").strip()
             direction = data.get("direction", "lux_to_eng")
+            input_mode = data.get("input_mode", "text_input")
 
             from learning.services.answer_checker import AnswerChecker
             from learning.services.progress_updater import ProgressUpdater
@@ -122,12 +123,22 @@ class CheckAnswerView(LoginRequiredMixin, View):
 
                 card = PhraseCard.objects.get(pk=card_id)
 
-            # Check the answer
-            checker = AnswerChecker()
             correct_answer = (
                 card.english if direction == "lux_to_eng" else card.luxembourgish
             )
-            result = checker.check(user_answer, correct_answer)
+
+            # Check the answer based on input mode
+            if input_mode == "multiple_choice":
+                # For multiple choice, use exact string matching (case-insensitive)
+                is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
+                result = {
+                    "is_correct": is_correct,
+                    "match_quality": "exact" if is_correct else "incorrect",
+                }
+            else:
+                # For text input, use fuzzy matching with typo tolerance
+                checker = AnswerChecker()
+                result = checker.check(user_answer, correct_answer)
 
             # Update progress
             updater = ProgressUpdater()
@@ -159,7 +170,12 @@ class NextCardView(LoginRequiredMixin, View):
             topic_id = request.GET.get("topic_id")
             direction = request.GET.get("direction", "lux_to_eng")
 
+            from cards.models import DifficultyLevel
             from learning.services.card_selector import CardSelector
+            from learning.services.option_generator import (
+                InsufficientOptionsError,
+                OptionGenerator,
+            )
 
             selector = CardSelector(request.user)
             card = selector.get_next_card(topic_id=topic_id)
@@ -167,22 +183,45 @@ class NextCardView(LoginRequiredMixin, View):
             if card is None:
                 return JsonResponse({"card": None, "message": "No cards available"})
 
-            card_type = "vocabulary" if hasattr(card, "vocabularycard") else "phrase"
+            from cards.models import VocabularyCard as VocabModel
 
-            return JsonResponse(
-                {
-                    "card": {
-                        "id": card.id,
-                        "type": card_type,
-                        "question": (
-                            card.luxembourgish
-                            if direction == "lux_to_eng"
-                            else card.english
-                        ),
-                        "direction": direction,
-                    }
+            card_type = "vocabulary" if isinstance(card, VocabModel) else "phrase"
+
+            # Determine input mode based on difficulty
+            input_mode = "text_input"
+            options_data = {}
+
+            if card.difficulty_level == DifficultyLevel.BEGINNER and card_type == "vocabulary":
+                # Try to generate multiple choice options for beginner cards
+                try:
+                    generator = OptionGenerator(card, direction)
+                    options_data = generator.get_options()
+                    input_mode = "multiple_choice"
+                except InsufficientOptionsError:
+                    # Fallback to text input if not enough options
+                    input_mode = "text_input"
+
+            response_data = {
+                "card": {
+                    "id": card.id,
+                    "type": card_type,
+                    "question": (
+                        card.luxembourgish
+                        if direction == "lux_to_eng"
+                        else card.english
+                    ),
+                    "direction": direction,
+                    "difficulty_level": card.difficulty_level,
+                    "input_mode": input_mode,
                 }
-            )
+            }
+
+            # Add options for multiple choice
+            if input_mode == "multiple_choice":
+                response_data["card"]["options"] = options_data["options"]
+                response_data["card"]["correct_index"] = options_data["correct_index"]
+
+            return JsonResponse(response_data)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)

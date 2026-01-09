@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
 
@@ -65,7 +66,10 @@ class Topic(models.Model):
 
 
 class BaseCard(models.Model):
-    """Abstract base model for all flashcard types."""
+    """Abstract base model for all flashcard types.
+
+    Note: Subclasses override the default difficulty_level as needed.
+    """
 
     luxembourgish = models.CharField(max_length=500)
     english = models.CharField(max_length=500)
@@ -85,13 +89,29 @@ class BaseCard(models.Model):
 
 
 class VocabularyCard(BaseCard):
-    """Flashcard for vocabulary (single words)."""
+    """Flashcard for vocabulary (single words).
+
+    VocabularyCard is restricted to BEGINNER and INTERMEDIATE difficulty levels.
+    Use PhraseCard for ADVANCED difficulty content.
+    """
 
     topics = models.ManyToManyField(Topic, blank=True)
 
     class Meta:
         verbose_name = "Vocabulary Card"
         verbose_name_plural = "Vocabulary Cards"
+
+    def clean(self):
+        super().clean()
+        if self.difficulty_level == DifficultyLevel.ADVANCED:
+            raise ValidationError({
+                "difficulty_level": "VocabularyCard cannot have ADVANCED difficulty. "
+                "Use PhraseCard for advanced content."
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class RegisterChoice(models.TextChoices):
@@ -103,7 +123,11 @@ class RegisterChoice(models.TextChoices):
 
 
 class PhraseCard(BaseCard):
-    """Flashcard for phrases and sentences."""
+    """Flashcard for phrases and sentences.
+
+    PhraseCard is restricted to ADVANCED difficulty level only.
+    Use VocabularyCard for BEGINNER and INTERMEDIATE difficulty content.
+    """
 
     topics = models.ManyToManyField(Topic, blank=True)
     register = models.CharField(
@@ -116,3 +140,15 @@ class PhraseCard(BaseCard):
     class Meta:
         verbose_name = "Phrase Card"
         verbose_name_plural = "Phrase Cards"
+
+    def clean(self):
+        super().clean()
+        if self.difficulty_level != DifficultyLevel.ADVANCED:
+            raise ValidationError({
+                "difficulty_level": "PhraseCard must have ADVANCED difficulty. "
+                "Use VocabularyCard for beginner/intermediate content."
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)

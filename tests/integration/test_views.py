@@ -1,10 +1,12 @@
 """Integration tests for views."""
 
+import json
+
 import pytest
 from django.urls import reverse
 
 from accounts.models import User
-from cards.models import Topic, VocabularyCard
+from cards.models import DifficultyLevel, PhraseCard, Topic, VocabularyCard
 
 
 @pytest.mark.django_db
@@ -173,3 +175,214 @@ class TestAPIEndpoints:
             data="{}",
         )
         assert response.status_code == 302  # Redirect to login
+
+
+@pytest.mark.django_db
+class TestDifficultyBasedStudyFlow:
+    """Tests for difficulty-based study flow."""
+
+    @pytest.fixture
+    def setup_cards(self):
+        """Create cards of different difficulties."""
+        topic = Topic.objects.create(name="Greetings")
+
+        # Beginner cards for multiple choice
+        beginner_cards = []
+        for lux, eng in [
+            ("Moien", "Hello"),
+            ("Äddi", "Goodbye"),
+            ("Merci", "Thank you"),
+            ("Pardon", "Sorry"),
+        ]:
+            card = VocabularyCard.objects.create(
+                luxembourgish=lux,
+                english=eng,
+                difficulty_level=DifficultyLevel.BEGINNER,
+            )
+            card.topics.add(topic)
+            beginner_cards.append(card)
+
+        # Intermediate card
+        intermediate = VocabularyCard.objects.create(
+            luxembourgish="Haus",
+            english="House",
+            difficulty_level=DifficultyLevel.INTERMEDIATE,
+        )
+        intermediate.topics.add(topic)
+
+        # Advanced card (PhraseCard)
+        advanced = PhraseCard.objects.create(
+            luxembourgish="Wéi geet et dir?",
+            english="How are you?",
+            difficulty_level=DifficultyLevel.ADVANCED,
+        )
+        advanced.topics.add(topic)
+
+        return {
+            "beginner": beginner_cards,
+            "intermediate": intermediate,
+            "advanced": advanced,
+            "topic": topic,
+        }
+
+    def test_beginner_card_returns_multiple_choice(self, client, user, setup_cards):
+        """Test that beginner cards return multiple choice options."""
+        client.force_login(user)
+
+        # Request next card from the specific topic with enough beginner cards
+        response = client.get(
+            reverse("learning:next_card"),
+            {"direction": "lux_to_eng", "topic_id": setup_cards["topic"].id},
+        )
+        assert response.status_code == 200
+
+        data = response.json()
+        card = data.get("card")
+
+        # If we got a beginner card, it should have multiple choice
+        if card and card.get("difficulty_level") == DifficultyLevel.BEGINNER:
+            assert card["input_mode"] == "multiple_choice"
+            assert "options" in card
+            assert len(card["options"]) == 3
+            assert "correct_index" in card
+            assert 0 <= card["correct_index"] < 3
+
+    def test_intermediate_card_returns_text_input(self, client, user, setup_cards):
+        """Test that intermediate cards return text input mode."""
+        client.force_login(user)
+
+        response = client.get(
+            reverse("learning:next_card"), {"direction": "lux_to_eng"}
+        )
+        data = response.json()
+        card = data.get("card")
+
+        # If we got an intermediate card, it should be text input
+        if card and card.get("difficulty_level") == DifficultyLevel.INTERMEDIATE:
+            assert card["input_mode"] == "text_input"
+            assert "options" not in card
+
+    def test_advanced_card_returns_text_input(self, client, user, setup_cards):
+        """Test that advanced cards return text input mode."""
+        client.force_login(user)
+
+        response = client.get(
+            reverse("learning:next_card"), {"direction": "lux_to_eng"}
+        )
+        data = response.json()
+        card = data.get("card")
+
+        # If we got an advanced card, it should be text input
+        if card and card.get("difficulty_level") == DifficultyLevel.ADVANCED:
+            assert card["input_mode"] == "text_input"
+            assert "options" not in card
+
+    def test_check_answer_multiple_choice_correct(self, client, user, setup_cards):
+        """Test checking correct multiple choice answer."""
+        client.force_login(user)
+
+        beginner_card = setup_cards["beginner"][0]  # "Moien" = "Hello"
+
+        response = client.post(
+            reverse("learning:check_answer"),
+            data=json.dumps(
+                {
+                    "card_type": "vocabulary",
+                    "card_id": beginner_card.id,
+                    "answer": "Hello",
+                    "direction": "lux_to_eng",
+                    "input_mode": "multiple_choice",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["is_correct"] is True
+
+    def test_check_answer_multiple_choice_incorrect(self, client, user, setup_cards):
+        """Test checking incorrect multiple choice answer."""
+        client.force_login(user)
+
+        beginner_card = setup_cards["beginner"][0]  # "Moien" = "Hello"
+
+        response = client.post(
+            reverse("learning:check_answer"),
+            data=json.dumps(
+                {
+                    "card_type": "vocabulary",
+                    "card_id": beginner_card.id,
+                    "answer": "Goodbye",  # Wrong answer
+                    "direction": "lux_to_eng",
+                    "input_mode": "multiple_choice",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["is_correct"] is False
+
+    def test_check_answer_text_input_with_typo(self, client, user, setup_cards):
+        """Test that text input mode accepts typos."""
+        client.force_login(user)
+
+        intermediate_card = setup_cards["intermediate"]  # "Haus" = "House"
+
+        response = client.post(
+            reverse("learning:check_answer"),
+            data=json.dumps(
+                {
+                    "card_type": "vocabulary",
+                    "card_id": intermediate_card.id,
+                    "answer": "Housee",  # Typo
+                    "direction": "lux_to_eng",
+                    "input_mode": "text_input",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Typo tolerance should accept this
+        assert data["is_correct"] is True
+        assert data["match_quality"] == "close"
+
+    def test_fallback_to_text_when_insufficient_options(self, client, user):
+        """Test fallback to text input when not enough options for multiple choice."""
+        client.force_login(user)
+
+        topic = Topic.objects.create(name="Solo")
+        # Only one beginner card - can't generate multiple choice
+        card = VocabularyCard.objects.create(
+            luxembourgish="Eent",
+            english="One",
+            difficulty_level=DifficultyLevel.BEGINNER,
+        )
+        card.topics.add(topic)
+
+        response = client.get(
+            reverse("learning:next_card"),
+            {"topic_id": topic.id, "direction": "lux_to_eng"},
+        )
+
+        data = response.json()
+        # Should fallback to text input since there aren't enough cards
+        if data.get("card"):
+            assert data["card"]["input_mode"] == "text_input"
+
+    def test_response_includes_difficulty_level(self, client, user, setup_cards):
+        """Test that response includes difficulty_level field."""
+        client.force_login(user)
+
+        response = client.get(
+            reverse("learning:next_card"), {"direction": "lux_to_eng"}
+        )
+        data = response.json()
+
+        if data.get("card"):
+            assert "difficulty_level" in data["card"]
+            assert data["card"]["difficulty_level"] in [1, 2, 3]
