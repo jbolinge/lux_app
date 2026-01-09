@@ -6,10 +6,12 @@ CSV Format for Vocabulary:
     Moien,Hello,1,"Greetings,Basics"
 
 CSV Format for Phrases:
-    luxembourgish,english,difficulty,topics,register
-    Wéi geet et?,How are you?,1,"Greetings,Basics",informal
+    luxembourgish,english,topics,register
+    Wéi geet et?,How are you?,"Greetings,Basics",informal
 
-Difficulty levels: 1=Beginner, 2=Intermediate, 3=Advanced
+Difficulty levels: 1=Beginner, 2=Intermediate (vocabulary only)
+Note: VocabularyCards are restricted to BEGINNER/INTERMEDIATE difficulty.
+      PhraseCards are always ADVANCED difficulty (ignored in CSV).
 Topics: Comma-separated list of topic names (will be created if they don't exist)
 Register: neutral, formal, informal (phrases only)
 """
@@ -18,7 +20,13 @@ import csv
 
 from django.core.management.base import BaseCommand, CommandError
 
-from cards.models import DifficultyLevel, PhraseCard, RegisterChoice, Topic, VocabularyCard
+from cards.models import (
+    DifficultyLevel,
+    PhraseCard,
+    RegisterChoice,
+    Topic,
+    VocabularyCard,
+)
 
 
 class Command(BaseCommand):
@@ -57,7 +65,8 @@ class Command(BaseCommand):
                 skipped_count = 0
                 error_count = 0
 
-                for row_num, row in enumerate(reader, start=2):  # Start at 2 for 1-indexed + header
+                # Row numbers start at 2 (1-indexed + header row)
+                for row_num, row in enumerate(reader, start=2):
                     try:
                         if card_type == "vocabulary":
                             created = self._import_vocabulary(row, dry_run)
@@ -111,14 +120,21 @@ class Command(BaseCommand):
                 topics.append(topic)
         return topics
 
-    def _get_difficulty(self, value: str) -> int:
-        """Convert difficulty string to integer."""
+    def _get_vocabulary_difficulty(self, value: str) -> int:
+        """Convert difficulty string to integer for vocabulary cards.
+
+        VocabularyCards are restricted to BEGINNER and INTERMEDIATE only.
+        ADVANCED difficulty is not allowed and will default to INTERMEDIATE.
+        """
         if not value:
             return DifficultyLevel.BEGINNER
         try:
             level = int(value)
-            if level in [1, 2, 3]:
-                return level
+            if level == DifficultyLevel.BEGINNER:
+                return DifficultyLevel.BEGINNER
+            if level in [DifficultyLevel.INTERMEDIATE, DifficultyLevel.ADVANCED]:
+                # Cap at INTERMEDIATE since VocabularyCard cannot be ADVANCED
+                return DifficultyLevel.INTERMEDIATE
         except ValueError:
             pass
         return DifficultyLevel.BEGINNER
@@ -145,7 +161,7 @@ class Command(BaseCommand):
         card = VocabularyCard.objects.create(
             luxembourgish=luxembourgish,
             english=english,
-            difficulty_level=self._get_difficulty(row.get("difficulty", "")),
+            difficulty_level=self._get_vocabulary_difficulty(row.get("difficulty", "")),
         )
 
         topics = self._get_or_create_topics(row.get("topics", ""))
@@ -155,7 +171,11 @@ class Command(BaseCommand):
         return True
 
     def _import_phrase(self, row: dict, dry_run: bool) -> bool:
-        """Import a phrase card from a CSV row."""
+        """Import a phrase card from a CSV row.
+
+        PhraseCards are always created with ADVANCED difficulty.
+        Any difficulty value in the CSV is ignored.
+        """
         luxembourgish = row.get("luxembourgish", "").strip()
         english = row.get("english", "").strip()
 
@@ -178,10 +198,11 @@ class Command(BaseCommand):
             self.stdout.write(f"Would create: {luxembourgish} = {english}")
             return True
 
+        # PhraseCards must always be ADVANCED difficulty
         card = PhraseCard.objects.create(
             luxembourgish=luxembourgish,
             english=english,
-            difficulty_level=self._get_difficulty(row.get("difficulty", "")),
+            difficulty_level=DifficultyLevel.ADVANCED,
             register=register,
         )
 
