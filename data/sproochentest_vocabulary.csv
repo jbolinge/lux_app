@@ -1,0 +1,292 @@
+luxembourgish,english,difficulty,topics
+Moien,Hello,1,Greetings
+Salut,Hi,1,Greetings
+Gudde Moien,Good morning,1,Greetings
+Gudde Mëtteg,Good afternoon,1,Greetings
+Gudden Owend,Good evening,1,Greetings
+Gutt Nuecht,Good night,1,Greetings
+Äddi,Goodbye,1,Greetings
+Bis herno,See you later,1,Greetings
+Schéinen Dag,Have a nice day,1,Greetings
+Wëllkomm,Welcome,1,Greetings
+Jo,Yes,1,"Basics,Greetings"
+Nee,No,1,"Basics,Greetings"
+Merci,Thank you,1,"Basics,Greetings"
+Villmols merci,Thank you very much,1,Greetings
+Wann ech gelift,Please,1,"Basics,Greetings"
+Entschëllegt,Excuse me,1,"Basics,Greetings"
+Pardon,Sorry,1,"Basics,Greetings"
+Gär geschitt,You're welcome,1,Greetings
+Null,Zero,1,Numbers
+Eent,One,1,Numbers
+Zwee,Two,1,Numbers
+Dräi,Three,1,Numbers
+Véier,Four,1,Numbers
+Fënnef,Five,1,Numbers
+Sechs,Six,1,Numbers
+Siwen,Seven,1,Numbers
+Aacht,Eight,1,Numbers
+Néng,Nine,1,Numbers
+Zéng,Ten,1,Numbers
+Eelef,Eleven,1,Numbers
+Zwielef,Twelve,1,Numbers
+Dräizéng,Thirteen,2,Numbers
+Véierzéng,Fourteen,2,Numbers
+Fofzéng,Fifteen,2,Numbers
+Siechzéng,Sixteen,2,Numbers
+Siwwenzéng,Seventeen,2,Numbers
+Uechtzéng,Eighteen,2,Numbers
+Nonzéng,Nineteen,2,Numbers
+Zwanzeg,Twenty,1,Numbers
+Drësseg,Thirty,1,Numbers
+Véierzeg,Forty,1,Numbers
+Fofzeg,Fifty,1,Numbers
+Siechzeg,Sixty,2,Numbers
+Siwwenzeg,Seventy,2,Numbers
+Uechtzeg,Eighty,2,Numbers
+Nonzeg,Ninety,2,Numbers
+Honnert,Hundred,1,Numbers
+Dausend,Thousand,2,Numbers
+Éischte,First,1,Numbers
+Zweete,Second,1,Numbers
+Drëtten,Third,1,Numbers
+Véierte,Fourth,2,Numbers
+Fënnefte,Fifth,2,Numbers
+Famill,Family,1,Family
+Mamm,Mother,1,Family
+Papp,Father,1,Family
+Kand,Child,1,Family
+Kanner,Children,1,Family
+Brudder,Brother,1,Family
+Schwëster,Sister,1,Family
+Grousspapp,Grandfather,1,Family
+Groussmamm,Grandmother,1,Family
+Onkel,Uncle,2,Family
+Tatta,Aunt,2,Family
+Cousin,Cousin (male),2,Family
+Cousine,Cousin (female),2,Family
+Mann,Husband,1,Family
+Fra,Wife,1,Family
+Frënd,Friend (male),1,Family
+Frëndin,Friend (female),1,Family
+Aarbecht,Work,1,Work
+Beruff,Profession,1,Work
+Dokter,Doctor,1,Work
+Enseignant,Teacher,1,Work
+Ingenieur,Engineer,2,Work
+Affekot,Lawyer,2,Work
+Bauer,Farmer,1,Work
+Bäcker,Baker,1,Work
+Metzler,Butcher,2,Work
+Polizist,Police officer,1,Work
+Pompjee,Firefighter,2,Work
+Infirmière,Nurse,2,Work
+Sekretär,Secretary,2,Work
+Chauffer,Driver,1,Work
+Manager,Manager,2,Work
+Aarbechter,Worker,1,Work
+Chef,Boss,1,Work
+Kollege,Colleague,2,Work
+Büro,Office,1,Work
+Haus,House,1,Home
+Wunneng,Apartment,1,Home
+Appartement,Flat,1,Home
+Doheem,Home,1,Home
+Zëmmer,Room,1,Home
+Stuff,Living room,1,Home
+Kichen,Kitchen,1,Home
+Schlofzëmmer,Bedroom,1,Home
+Buedzëmmer,Bathroom,1,Home
+Iesszëmmer,Dining room,2,Home
+Toilette,Toilet,1,Home
+Gaart,Garden,1,Home
+Terrasse,Terrace,2,Home
+Keller,Cellar,2,Home
+Garage,Garage,1,Home
+Dier,Door,1,Home
+Fënster,Window,1,Home
+Dësch,Table,1,Home
+Stull,Chair,1,Home
+Bett,Bed,1,Home
+Sofa,Sofa,1,Home
+Kaaf,Cupboard,2,Home
+Stack,Floor,2,Home
+Iessen,Food,1,"Food and Drinks"
+Brout,Bread,1,"Food and Drinks"
+Kéis,Cheese,1,"Food and Drinks"
+Fleesch,Meat,1,"Food and Drinks"
+Fësch,Fish,1,"Food and Drinks"
+Geméis,Vegetables,1,"Food and Drinks"
+Uebst,Fruit,1,"Food and Drinks"
+Salat,Salad,1,"Food and Drinks"
+Zopp,Soup,1,"Food and Drinks"
+Ree,Rice,1,"Food and Drinks"
+Paart,Pasta,1,"Food and Drinks"
+Ei,Egg,1,"Food and Drinks"
+Gedrénks,Drinks,1,"Food and Drinks"
+Waasser,Water,1,"Food and Drinks"
+Kaffi,Coffee,1,"Food and Drinks"
+Téi,Tea,1,"Food and Drinks"
+Mëllech,Milk,1,"Food and Drinks"
+Saft,Juice,1,"Food and Drinks"
+Béier,Beer,1,"Food and Drinks"
+Wäin,Wine,1,"Food and Drinks"
+Dessert,Dessert,2,"Food and Drinks"
+Frühstück,Breakfast,1,"Food and Drinks"
+Mëttegiessen,Lunch,1,"Food and Drinks"
+Owesiessen,Dinner,2,"Food and Drinks"
+Auto,Car,1,Transportation
+Bus,Bus,1,Transportation
+Zuch,Train,1,Transportation
+Fliger,Airplane,1,Transportation
+Vëlo,Bicycle,1,Transportation
+Taxi,Taxi,1,Transportation
+Gare,Train station,1,Transportation
+Flughafen,Airport,1,Transportation
+Bushaltestell,Bus stop,2,Transportation
+Billett,Ticket,1,Transportation
+Strooss,Street,1,Transportation
+Wee,Way,1,Transportation
+Lénks,Left,1,Transportation
+Riets,Right,1,Transportation
+Geradeaus,Straight ahead,1,Transportation
+Hei,Here,1,Transportation
+Do,There,1,Transportation
+Méindeg,Monday,1,Time
+Dënschdeg,Tuesday,1,Time
+Mëttwoch,Wednesday,1,Time
+Donneschdeg,Thursday,1,Time
+Freideg,Friday,1,Time
+Samschdeg,Saturday,1,Time
+Sonndeg,Sunday,1,Time
+Januar,January,1,Time
+Februar,February,1,Time
+Mäerz,March,1,Time
+Abrëll,April,1,Time
+Mee,May,1,Time
+Juni,June,1,Time
+Juli,July,1,Time
+August,August,1,Time
+September,September,1,Time
+Oktober,October,1,Time
+November,November,1,Time
+Dezember,December,1,Time
+Haut,Today,1,Time
+Muer,Tomorrow,1,Time
+Gëschter,Yesterday,1,Time
+Auer,Hour,1,Time
+Minutt,Minute,1,Time
+Moien,Morning,1,Time
+Nomëttes,Afternoon,1,Time
+Owend,Evening,1,Time
+Nuecht,Night,1,Time
+Rout,Red,1,Colors
+Blo,Blue,1,Colors
+Gréng,Green,1,Colors
+Giel,Yellow,1,Colors
+Schwaarz,Black,1,Colors
+Wäiss,White,1,Colors
+Brong,Brown,1,Colors
+Gro,Gray,2,Colors
+Rosa,Pink,2,Colors
+Orange,Orange,1,Colors
+Buttek,Shop,1,Shopping
+Supermarché,Supermarket,1,Shopping
+Maart,Market,1,Shopping
+Bäckerei,Bakery,1,Shopping
+Apothik,Pharmacy,1,Shopping
+Bank,Bank,1,Shopping
+Geld,Money,1,Shopping
+Präis,Price,1,Shopping
+Quittung,Receipt,2,Shopping
+Kees,Cash register,2,Shopping
+Gesondheet,Health,1,Health
+Krank,Sick,1,Health
+Wéi,Pain,1,Health
+Kapp,Head,1,Health
+Bauch,Stomach,1,Health
+Réck,Back,1,Health
+Aen,Eye,1,Health
+Nues,Nose,1,Health
+Mond,Mouth,1,Health
+Ouer,Ear,1,Health
+Hand,Hand,1,Health
+Fouss,Foot,1,Health
+Spidol,Hospital,1,Health
+Medikament,Medicine,2,Health
+Gutt,Good,1,Adjectives
+Schlecht,Bad,1,Adjectives
+Grouss,Big,1,Adjectives
+Kleng,Small,1,Adjectives
+Nei,New,1,Adjectives
+Al,Old,1,Adjectives
+Schéin,Beautiful,1,Adjectives
+Deier,Expensive,1,Adjectives
+Bëlleg,Cheap,1,Adjectives
+Séier,Fast,1,Adjectives
+Lues,Slow,1,Adjectives
+Einfach,Easy,1,Adjectives
+Schwéier,Difficult,1,Adjectives
+Waarm,Warm,1,Adjectives
+Kal,Cold,1,Adjectives
+Hell,Bright,1,Adjectives
+Donkel,Dark,2,Adjectives
+Roueg,Quiet,1,Adjectives
+Laang,Long,1,Adjectives
+Kuerz,Short,1,Adjectives
+Frou,Happy,1,Adjectives
+Traureg,Sad,1,Adjectives
+Midd,Tired,1,Adjectives
+Hongereg,Hungry,1,Adjectives
+Duuschtereg,Thirsty,2,Adjectives
+Frëndlech,Friendly,1,Adjectives
+Wichteg,Important,2,Adjectives
+Interessant,Interesting,2,Adjectives
+Wat,What,1,"Question Words"
+Wou,Where,1,"Question Words"
+Wéini,When,1,"Question Words"
+Firwat,Why,1,"Question Words"
+Wéi,How,1,"Question Words"
+Wéi vill,How much,1,"Question Words"
+Wer,Who,1,"Question Words"
+Wéi eng,Which,2,"Question Words"
+Sport,Sports,1,"Hobbies,Sports"
+Fussball,Football,1,"Hobbies,Sports"
+Tennis,Tennis,1,"Hobbies,Sports"
+Schwammen,Swimming,1,"Hobbies,Sports"
+Lafen,Running,1,"Hobbies,Sports"
+Vëlofueren,Cycling,1,"Hobbies,Sports"
+Liesen,Reading,1,Hobbies
+Musek,Music,1,Hobbies
+Kachen,Cooking,1,Hobbies
+Reesen,Traveling,1,Hobbies
+Spillen,Playing,1,Hobbies
+Kino,Cinema,1,Hobbies
+Theater,Theater,2,Hobbies
+Buch,Book,1,Hobbies
+Film,Movie,1,Hobbies
+Handy,Mobile phone,1,"Media,Technology"
+Computer,Computer,1,"Media,Technology"
+Internet,Internet,1,"Media,Technology"
+E-Mail,Email,1,"Media,Technology"
+Fernseh,Television,1,"Media,Technology"
+Radio,Radio,1,"Media,Technology"
+Zeitung,Newspaper,2,"Media,Technology"
+Schoul,School,1,Education
+Universitéit,University,2,Education
+Cours,Course,1,Education
+Sprooch,Language,1,Education
+Lëtzebuergesch,Luxembourgish,1,Education
+Däitsch,German,1,Education
+Franséisch,French,1,Education
+Englesch,English,1,Education
+Wieder,Weather,1,Weather
+Sonn,Sun,1,Weather
+Reen,Rain,1,Weather
+Schnéi,Snow,1,Weather
+Wand,Wind,1,Weather
+Wolleken,Clouds,2,Weather
+Restaurant,Restaurant,1,Restaurant
+Menü,Menu,1,Restaurant
+Rechnung,Bill,1,Restaurant
+Kellner,Waiter,2,Restaurant
