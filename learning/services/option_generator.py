@@ -1,13 +1,14 @@
 """
 Option Generator for multiple choice questions.
 
-Generates wrong answer options for Easy (Beginner) difficulty cards,
+Generates wrong answer options for cards that haven't been mastered yet,
 following a priority cascade for selecting distractor options.
+Supports both VocabularyCards and PhraseCards.
 """
 
 import random
 
-from cards.models import VocabularyCard
+from cards.models import PhraseCard, VocabularyCard
 
 
 class InsufficientOptionsError(Exception):
@@ -21,24 +22,27 @@ class OptionGenerator:
     Generates wrong answer options for multiple choice questions.
 
     Selection priority for wrong options:
-    1. Same topic + same difficulty (BEGINNER)
+    1. Same topic + same difficulty
     2. Same topic + any difficulty
-    3. Any topic + same difficulty (BEGINNER)
-    4. Any card (fallback)
+    3. Any topic + same difficulty
+    4. Any card of same type (fallback)
     """
 
-    def __init__(self, card: VocabularyCard, direction: str, count: int = 2):
+    def __init__(
+        self, card: VocabularyCard | PhraseCard, direction: str, count: int = 2
+    ):
         """
         Initialize the generator.
 
         Args:
-            card: The correct card (VocabularyCard for Easy mode)
+            card: The correct card (VocabularyCard or PhraseCard)
             direction: 'lux_to_eng' or 'eng_to_lux'
             count: Number of wrong options to generate (default 2)
         """
         self.card = card
         self.direction = direction
         self.count = count
+        self.card_model = type(card)  # VocabularyCard or PhraseCard for queries
 
     def get_options(self) -> dict:
         """
@@ -133,7 +137,7 @@ class OptionGenerator:
             return []
 
         return list(
-            VocabularyCard.objects.filter(
+            self.card_model.objects.filter(
                 topics__in=topics,
                 difficulty_level=self.card.difficulty_level,
                 is_active=True,
@@ -149,7 +153,7 @@ class OptionGenerator:
             return []
 
         return list(
-            VocabularyCard.objects.filter(
+            self.card_model.objects.filter(
                 topics__in=topics,
                 is_active=True,
             )
@@ -163,7 +167,7 @@ class OptionGenerator:
         # Exclude cards from same topics
         topics = self.card.topics.all()
 
-        queryset = VocabularyCard.objects.filter(
+        queryset = self.card_model.objects.filter(
             difficulty_level=self.card.difficulty_level,
             is_active=True,
         ).exclude(pk=self.card.pk)
@@ -174,9 +178,9 @@ class OptionGenerator:
         return list(queryset.distinct())
 
     def _get_candidates_any_card(self) -> list:
-        """Priority 4: Fallback to any card."""
+        """Priority 4: Fallback to any card of same type."""
         return list(
-            VocabularyCard.objects.filter(is_active=True)
+            self.card_model.objects.filter(is_active=True)
             .exclude(pk=self.card.pk)
             .distinct()[:20]  # Limit for performance
         )

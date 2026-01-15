@@ -178,15 +178,19 @@ class TestAPIEndpoints:
 
 
 @pytest.mark.django_db
-class TestDifficultyBasedStudyFlow:
-    """Tests for difficulty-based study flow."""
+class TestMasteryBasedStudyFlow:
+    """Tests for mastery-based study flow.
+
+    Cards start as multiple choice and transition to text input
+    after 3 successful SM-2 repetitions (mastery threshold).
+    """
 
     @pytest.fixture
     def setup_cards(self):
         """Create cards of different difficulties."""
         topic = Topic.objects.create(name="Greetings")
 
-        # Beginner cards for multiple choice
+        # Beginner vocabulary cards for multiple choice
         beginner_cards = []
         for lux, eng in [
             ("Moien", "Hello"),
@@ -210,26 +214,33 @@ class TestDifficultyBasedStudyFlow:
         )
         intermediate.topics.add(topic)
 
-        # Advanced card (PhraseCard)
-        advanced = PhraseCard.objects.create(
-            luxembourgish="Wéi geet et dir?",
-            english="How are you?",
-            difficulty_level=DifficultyLevel.ADVANCED,
-        )
-        advanced.topics.add(topic)
+        # Beginner phrase cards
+        beginner_phrases = []
+        for lux, eng in [
+            ("Wéi geet et?", "How are you?"),
+            ("Mir geet et gutt", "I am fine"),
+            ("Bis muer", "See you tomorrow"),
+        ]:
+            card = PhraseCard.objects.create(
+                luxembourgish=lux,
+                english=eng,
+                difficulty_level=DifficultyLevel.BEGINNER,
+            )
+            card.topics.add(topic)
+            beginner_phrases.append(card)
 
         return {
             "beginner": beginner_cards,
             "intermediate": intermediate,
-            "advanced": advanced,
+            "beginner_phrases": beginner_phrases,
             "topic": topic,
         }
 
-    def test_beginner_card_returns_multiple_choice(self, client, user, setup_cards):
-        """Test that beginner cards return multiple choice options."""
+    def test_unmastered_card_returns_multiple_choice(self, client, user, setup_cards):
+        """Test that unmastered cards return multiple choice options."""
         client.force_login(user)
 
-        # Request next card from the specific topic with enough beginner cards
+        # Request next card - should be unmastered (no progress yet)
         response = client.get(
             reverse("learning:next_card"),
             {"direction": "lux_to_eng", "topic_id": setup_cards["topic"].id},
@@ -239,43 +250,99 @@ class TestDifficultyBasedStudyFlow:
         data = response.json()
         card = data.get("card")
 
-        # If we got a beginner card, it should have multiple choice
-        if card and card.get("difficulty_level") == DifficultyLevel.BEGINNER:
+        if card:
+            # Unmastered cards should have multiple choice
             assert card["input_mode"] == "multiple_choice"
             assert "options" in card
             assert len(card["options"]) == 3
             assert "correct_index" in card
             assert 0 <= card["correct_index"] < 3
+            # New fields for mastery tracking
+            assert card["is_mastered"] is False
+            assert card["repetitions"] == 0
 
-    def test_intermediate_card_returns_text_input(self, client, user, setup_cards):
-        """Test that intermediate cards return text input mode."""
+    def test_mastered_card_returns_text_input(self, client, user, setup_cards):
+        """Test that mastered cards return text input mode."""
+        from django.contrib.contenttypes.models import ContentType
+
+        from progress.models import CardProgress
+
         client.force_login(user)
 
+        # Create progress record with 3+ repetitions (mastered)
+        card = setup_cards["beginner"][0]
+        content_type = ContentType.objects.get_for_model(card)
+        CardProgress.objects.create(
+            user=user,
+            card_content_type=content_type,
+            card_object_id=card.id,
+            repetitions=3,  # Mastery threshold
+            ease_factor=2.5,
+            interval=6,
+        )
+
+        # Mark all other cards as seen so this one is selected
+        for other_card in setup_cards["beginner"][1:]:
+            ct = ContentType.objects.get_for_model(other_card)
+            CardProgress.objects.create(
+                user=user,
+                card_content_type=ct,
+                card_object_id=other_card.id,
+                repetitions=0,
+            )
+        for other_card in setup_cards["beginner_phrases"]:
+            ct = ContentType.objects.get_for_model(other_card)
+            CardProgress.objects.create(
+                user=user,
+                card_content_type=ct,
+                card_object_id=other_card.id,
+                repetitions=0,
+            )
+
         response = client.get(
-            reverse("learning:next_card"), {"direction": "lux_to_eng"}
+            reverse("learning:next_card"),
+            {"direction": "lux_to_eng", "topic_id": setup_cards["topic"].id},
         )
         data = response.json()
-        card = data.get("card")
+        card_data = data.get("card")
 
-        # If we got an intermediate card, it should be text input
-        if card and card.get("difficulty_level") == DifficultyLevel.INTERMEDIATE:
-            assert card["input_mode"] == "text_input"
-            assert "options" not in card
+        # If we get the mastered card back (due for review), it should be text input
+        if card_data and card_data["id"] == card.id:
+            assert card_data["input_mode"] == "text_input"
+            assert "options" not in card_data
+            assert card_data["is_mastered"] is True
+            assert card_data["repetitions"] >= 3
 
-    def test_advanced_card_returns_text_input(self, client, user, setup_cards):
-        """Test that advanced cards return text input mode."""
+    def test_phrase_unmastered_returns_multiple_choice(self, client, user, setup_cards):
+        """Test that unmastered phrases also get multiple choice."""
+        from django.contrib.contenttypes.models import ContentType
+
+        from progress.models import CardProgress
+
         client.force_login(user)
 
+        # Mark all vocabulary cards as seen so phrases are next
+        for card in setup_cards["beginner"]:
+            ct = ContentType.objects.get_for_model(card)
+            CardProgress.objects.create(
+                user=user,
+                card_content_type=ct,
+                card_object_id=card.id,
+                repetitions=0,
+            )
+
         response = client.get(
-            reverse("learning:next_card"), {"direction": "lux_to_eng"}
+            reverse("learning:next_card"),
+            {"direction": "lux_to_eng", "topic_id": setup_cards["topic"].id},
         )
         data = response.json()
-        card = data.get("card")
+        card_data = data.get("card")
 
-        # If we got an advanced card, it should be text input
-        if card and card.get("difficulty_level") == DifficultyLevel.ADVANCED:
-            assert card["input_mode"] == "text_input"
-            assert "options" not in card
+        # Should get a phrase card with multiple choice
+        if card_data and card_data["type"] == "phrase":
+            assert card_data["input_mode"] == "multiple_choice"
+            assert "options" in card_data
+            assert card_data["is_mastered"] is False
 
     def test_check_answer_multiple_choice_correct(self, client, user, setup_cards):
         """Test checking correct multiple choice answer."""

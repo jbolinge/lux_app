@@ -6,12 +6,12 @@ CSV Format for Vocabulary:
     Moien,Hello,1,"Greetings,Basics"
 
 CSV Format for Phrases:
-    luxembourgish,english,topics,register
-    Wéi geet et?,How are you?,"Greetings,Basics",informal
+    luxembourgish,english,difficulty,topics,register
+    Wéi geet et?,How are you?,1,"Greetings,Basics",informal
 
-Difficulty levels: 1=Beginner, 2=Intermediate (vocabulary only)
+Difficulty levels: 1=Beginner, 2=Intermediate, 3=Advanced
 Note: VocabularyCards are restricted to BEGINNER/INTERMEDIATE difficulty.
-      PhraseCards are always ADVANCED difficulty (ignored in CSV).
+      PhraseCards support all difficulty levels (BEGINNER, INTERMEDIATE, ADVANCED).
 Topics: Comma-separated list of topic names (will be created if they don't exist)
 Register: neutral, formal, informal (phrases only)
 """
@@ -139,6 +139,26 @@ class Command(BaseCommand):
             pass
         return DifficultyLevel.BEGINNER
 
+    def _get_phrase_difficulty(self, value: str) -> int:
+        """Convert difficulty string to integer for phrase cards.
+
+        PhraseCards support all difficulty levels (BEGINNER, INTERMEDIATE, ADVANCED).
+        Defaults to BEGINNER if not specified or invalid.
+        """
+        if not value:
+            return DifficultyLevel.BEGINNER
+        try:
+            level = int(value)
+            if level in [
+                DifficultyLevel.BEGINNER,
+                DifficultyLevel.INTERMEDIATE,
+                DifficultyLevel.ADVANCED,
+            ]:
+                return level
+        except ValueError:
+            pass
+        return DifficultyLevel.BEGINNER
+
     def _import_vocabulary(self, row: dict, dry_run: bool) -> bool:
         """Import a vocabulary card from a CSV row."""
         luxembourgish = row.get("luxembourgish", "").strip()
@@ -173,8 +193,7 @@ class Command(BaseCommand):
     def _import_phrase(self, row: dict, dry_run: bool) -> bool:
         """Import a phrase card from a CSV row.
 
-        PhraseCards are always created with ADVANCED difficulty.
-        Any difficulty value in the CSV is ignored.
+        PhraseCards support all difficulty levels (BEGINNER, INTERMEDIATE, ADVANCED).
         """
         luxembourgish = row.get("luxembourgish", "").strip()
         english = row.get("english", "").strip()
@@ -198,11 +217,10 @@ class Command(BaseCommand):
             self.stdout.write(f"Would create: {luxembourgish} = {english}")
             return True
 
-        # PhraseCards must always be ADVANCED difficulty
         card = PhraseCard.objects.create(
             luxembourgish=luxembourgish,
             english=english,
-            difficulty_level=DifficultyLevel.ADVANCED,
+            difficulty_level=self._get_phrase_difficulty(row.get("difficulty", "")),
             register=register,
         )
 

@@ -169,38 +169,32 @@ class TestCardDifficultyValidation:
             )
         assert "difficulty_level" in str(exc_info.value)
 
+    def test_phrase_card_allows_beginner(self):
+        """Test PhraseCard allows BEGINNER difficulty."""
+        card = PhraseCard.objects.create(
+            luxembourgish="Wéi geet et?",
+            english="How are you?",
+            difficulty_level=DifficultyLevel.BEGINNER,
+        )
+        assert card.difficulty_level == DifficultyLevel.BEGINNER
+
+    def test_phrase_card_allows_intermediate(self):
+        """Test PhraseCard allows INTERMEDIATE difficulty."""
+        card = PhraseCard.objects.create(
+            luxembourgish="Wéi geet et Iech?",
+            english="How are you? (formal)",
+            difficulty_level=DifficultyLevel.INTERMEDIATE,
+        )
+        assert card.difficulty_level == DifficultyLevel.INTERMEDIATE
+
     def test_phrase_card_allows_advanced(self):
         """Test PhraseCard allows ADVANCED difficulty."""
         card = PhraseCard.objects.create(
-            luxembourgish="Wéi geet et dir?",
-            english="How are you?",
+            luxembourgish="Ech si frou Iech kennenzeléieren",
+            english="Nice to meet you",
             difficulty_level=DifficultyLevel.ADVANCED,
         )
         assert card.difficulty_level == DifficultyLevel.ADVANCED
-
-    def test_phrase_card_rejects_beginner(self):
-        """Test PhraseCard rejects BEGINNER difficulty."""
-        from django.core.exceptions import ValidationError
-
-        with pytest.raises(ValidationError) as exc_info:
-            PhraseCard.objects.create(
-                luxembourgish="Wéi geet et?",
-                english="How are you?",
-                difficulty_level=DifficultyLevel.BEGINNER,
-            )
-        assert "difficulty_level" in str(exc_info.value)
-
-    def test_phrase_card_rejects_intermediate(self):
-        """Test PhraseCard rejects INTERMEDIATE difficulty."""
-        from django.core.exceptions import ValidationError
-
-        with pytest.raises(ValidationError) as exc_info:
-            PhraseCard.objects.create(
-                luxembourgish="Wéi geet et?",
-                english="How are you?",
-                difficulty_level=DifficultyLevel.INTERMEDIATE,
-            )
-        assert "difficulty_level" in str(exc_info.value)
 
 
 @pytest.mark.django_db

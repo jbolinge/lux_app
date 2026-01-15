@@ -2,7 +2,7 @@
 
 import pytest
 
-from cards.models import DifficultyLevel, Topic, VocabularyCard
+from cards.models import DifficultyLevel, PhraseCard, Topic, VocabularyCard
 
 
 @pytest.mark.django_db
@@ -312,3 +312,110 @@ class TestOptionGeneratorEdgeCases:
 
         # "Hello" should appear exactly once
         assert result["options"].count("Hello") == 1
+
+
+@pytest.mark.django_db
+class TestOptionGeneratorWithPhrases:
+    """Tests for OptionGenerator with PhraseCards."""
+
+    @pytest.fixture
+    def topic(self):
+        """Create a test topic."""
+        return Topic.objects.create(name="Greetings")
+
+    @pytest.fixture
+    def beginner_phrase(self, topic):
+        """Create a beginner phrase card."""
+        card = PhraseCard.objects.create(
+            luxembourgish="Wéi geet et?",
+            english="How are you?",
+            difficulty_level=DifficultyLevel.BEGINNER,
+        )
+        card.topics.add(topic)
+        return card
+
+    @pytest.fixture
+    def additional_beginner_phrases(self, topic):
+        """Create additional beginner phrases for wrong options."""
+        phrases = [
+            ("Mir geet et gutt", "I am fine"),
+            ("Bis muer", "See you tomorrow"),
+            ("Moien", "Good morning"),
+        ]
+        cards = []
+        for lux, eng in phrases:
+            card = PhraseCard.objects.create(
+                luxembourgish=lux,
+                english=eng,
+                difficulty_level=DifficultyLevel.BEGINNER,
+            )
+            card.topics.add(topic)
+            cards.append(card)
+        return cards
+
+    def test_phrase_get_options_returns_three_options(
+        self, beginner_phrase, additional_beginner_phrases
+    ):
+        """Test that get_options returns 3 options for phrases."""
+        from learning.services.option_generator import OptionGenerator
+
+        generator = OptionGenerator(beginner_phrase, "lux_to_eng")
+        result = generator.get_options()
+
+        assert len(result["options"]) == 3
+
+    def test_phrase_options_include_correct_answer(
+        self, beginner_phrase, additional_beginner_phrases
+    ):
+        """Test that options include correct answer for phrases."""
+        from learning.services.option_generator import OptionGenerator
+
+        generator = OptionGenerator(beginner_phrase, "lux_to_eng")
+        result = generator.get_options()
+
+        assert result["correct_answer"] in result["options"]
+        assert result["options"][result["correct_index"]] == result["correct_answer"]
+
+    def test_phrase_lux_to_eng_direction(
+        self, beginner_phrase, additional_beginner_phrases
+    ):
+        """Test lux_to_eng direction returns English options for phrases."""
+        from learning.services.option_generator import OptionGenerator
+
+        generator = OptionGenerator(beginner_phrase, "lux_to_eng")
+        result = generator.get_options()
+
+        assert result["correct_answer"] == "How are you?"
+
+    def test_phrase_eng_to_lux_direction(
+        self, beginner_phrase, additional_beginner_phrases
+    ):
+        """Test eng_to_lux direction returns Luxembourgish options for phrases."""
+        from learning.services.option_generator import OptionGenerator
+
+        generator = OptionGenerator(beginner_phrase, "eng_to_lux")
+        result = generator.get_options()
+
+        assert result["correct_answer"] == "Wéi geet et?"
+
+    def test_phrase_options_only_from_phrases(
+        self, beginner_phrase, additional_beginner_phrases, topic
+    ):
+        """Test that phrase card options only come from other phrases, not vocab."""
+        from learning.services.option_generator import OptionGenerator
+
+        # Create vocabulary cards in same topic (should not be used)
+        for lux, eng in [("Moien", "Hello"), ("Äddi", "Goodbye")]:
+            card = VocabularyCard.objects.create(
+                luxembourgish=lux,
+                english=eng,
+                difficulty_level=DifficultyLevel.BEGINNER,
+            )
+            card.topics.add(topic)
+
+        generator = OptionGenerator(beginner_phrase, "lux_to_eng")
+        result = generator.get_options()
+
+        # Should not include vocabulary answers
+        assert "Hello" not in result["options"]
+        assert "Goodbye" not in result["options"]

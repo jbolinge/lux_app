@@ -1,9 +1,13 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
+
+# Number of SM-2 repetitions required to master multiple choice mode
+MASTERY_REPETITIONS_THRESHOLD = 3
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -172,12 +176,12 @@ class NextCardView(LoginRequiredMixin, View):
             topic_id = request.GET.get("topic_id")
             direction = request.GET.get("direction", "lux_to_eng")
 
-            from cards.models import DifficultyLevel
             from learning.services.card_selector import CardSelector
             from learning.services.option_generator import (
                 InsufficientOptionsError,
                 OptionGenerator,
             )
+            from progress.models import CardProgress
 
             selector = CardSelector(request.user)
             card = selector.get_next_card(topic_id=topic_id)
@@ -189,16 +193,24 @@ class NextCardView(LoginRequiredMixin, View):
 
             card_type = "vocabulary" if isinstance(card, VocabModel) else "phrase"
 
-            # Determine input mode based on difficulty
+            # Get card progress to check mastery
+            content_type = ContentType.objects.get_for_model(card)
+            card_progress = CardProgress.objects.filter(
+                user=request.user,
+                card_content_type=content_type,
+                card_object_id=card.id,
+            ).first()
+
+            # Card is mastered after 3+ successful SM-2 repetitions
+            repetitions = card_progress.repetitions if card_progress else 0
+            is_mastered = repetitions >= MASTERY_REPETITIONS_THRESHOLD
+
+            # Determine input mode based on mastery (not difficulty)
             input_mode = "text_input"
             options_data = {}
 
-            is_beginner_vocab = (
-                card.difficulty_level == DifficultyLevel.BEGINNER
-                and card_type == "vocabulary"
-            )
-            if is_beginner_vocab:
-                # Try to generate multiple choice options for beginner cards
+            if not is_mastered:
+                # Try multiple choice for unmastered cards
                 try:
                     generator = OptionGenerator(card, direction)
                     options_data = generator.get_options()
@@ -219,6 +231,8 @@ class NextCardView(LoginRequiredMixin, View):
                     "direction": direction,
                     "difficulty_level": card.difficulty_level,
                     "input_mode": input_mode,
+                    "is_mastered": is_mastered,
+                    "repetitions": repetitions,
                 }
             }
 

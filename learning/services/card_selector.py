@@ -132,13 +132,17 @@ class CardSelector:
         vocab_queryset = vocab_queryset.order_by("difficulty_level", "created_at")
         phrase_queryset = phrase_queryset.order_by("difficulty_level", "created_at")
 
-        # Get the first available card (vocabulary preferred, then phrases)
+        # Get the first available card
         vocab_card = vocab_queryset.first()
         phrase_card = phrase_queryset.first()
 
         if vocab_card and phrase_card:
-            # Randomly choose between vocab and phrase
-            return random.choice([vocab_card, phrase_card])
+            # Prefer vocabulary within same or lower difficulty level
+            # This ensures users master vocabulary before phrases at each level
+            if vocab_card.difficulty_level <= phrase_card.difficulty_level:
+                return vocab_card
+            else:
+                return phrase_card
         return vocab_card or phrase_card
 
     def _filter_by_topic(self, progress_queryset, topic: Topic):

@@ -125,8 +125,8 @@ class RegisterChoice(models.TextChoices):
 class PhraseCard(BaseCard):
     """Flashcard for phrases and sentences.
 
-    PhraseCard is restricted to ADVANCED difficulty level only.
-    Use VocabularyCard for BEGINNER and INTERMEDIATE difficulty content.
+    PhraseCards support all difficulty levels (BEGINNER, INTERMEDIATE, ADVANCED).
+    Cards start in multiple choice mode and transition to text input after mastery.
     """
 
     topics = models.ManyToManyField(Topic, blank=True)
@@ -140,15 +140,3 @@ class PhraseCard(BaseCard):
     class Meta:
         verbose_name = "Phrase Card"
         verbose_name_plural = "Phrase Cards"
-
-    def clean(self):
-        super().clean()
-        if self.difficulty_level != DifficultyLevel.ADVANCED:
-            raise ValidationError({
-                "difficulty_level": "PhraseCard must have ADVANCED difficulty. "
-                "Use VocabularyCard for beginner/intermediate content."
-            })
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)

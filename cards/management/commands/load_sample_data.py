@@ -203,125 +203,159 @@ class Command(BaseCommand):
         return count
 
     def _create_phrases(self, topics):
-        """Create phrase cards.
+        """Create phrase cards with varied difficulty levels.
 
-        All phrases are ADVANCED difficulty (text input for sentences).
+        Phrases are categorized by difficulty:
+        - BEGINNER: Simple, common phrases
+        - INTERMEDIATE: More complex, formal phrases
+        - ADVANCED: Complex sentences and formal expressions
         """
         phrase_data = [
-            # Greetings
+            # Greetings - Beginner (simple, common)
             (
                 "Wéi geet et?",
                 "How are you?",
                 topics["greetings"],
                 RegisterChoice.INFORMAL,
+                BEGINNER,
             ),
             (
                 "Mir geet et gutt",
                 "I am fine",
                 topics["greetings"],
                 RegisterChoice.NEUTRAL,
-            ),
-            (
-                "Wéi geet et Iech?",
-                "How are you? (formal)",
-                topics["greetings"],
-                RegisterChoice.FORMAL,
-            ),
-            (
-                "Ech si frou Iech kennenzeléieren",
-                "Nice to meet you",
-                topics["greetings"],
-                RegisterChoice.FORMAL,
+                BEGINNER,
             ),
             (
                 "Bis muer",
                 "See you tomorrow",
                 topics["greetings"],
                 RegisterChoice.INFORMAL,
+                BEGINNER,
             ),
             (
                 "Schéinen Dag nach",
                 "Have a nice day",
                 topics["greetings"],
                 RegisterChoice.NEUTRAL,
+                BEGINNER,
             ),
-            # Basics
+            # Greetings - Intermediate (formal greetings)
             (
-                "Wéi heescht Dir?",
-                "What is your name? (formal)",
-                topics["basics"],
+                "Wéi geet et Iech?",
+                "How are you? (formal)",
+                topics["greetings"],
                 RegisterChoice.FORMAL,
+                INTERMEDIATE,
             ),
+            (
+                "Et freet mech",
+                "Pleased to meet you",
+                topics["greetings"],
+                RegisterChoice.FORMAL,
+                INTERMEDIATE,
+            ),
+            # Greetings - Advanced (complex expressions)
+            (
+                "Ech si frou Iech kennenzeléieren",
+                "Nice to meet you",
+                topics["greetings"],
+                RegisterChoice.FORMAL,
+                ADVANCED,
+            ),
+            # Basics - Beginner
             (
                 "Ech heeschen...",
                 "My name is...",
                 topics["basics"],
                 RegisterChoice.NEUTRAL,
+                BEGINNER,
             ),
             (
                 "Ech verstinn net",
                 "I don't understand",
                 topics["basics"],
                 RegisterChoice.NEUTRAL,
+                BEGINNER,
             ),
+            # Basics - Intermediate
             (
-                "Kënnt Dir dat widderhuelen?",
-                "Can you repeat that?",
+                "Wéi heescht Dir?",
+                "What is your name? (formal)",
                 topics["basics"],
                 RegisterChoice.FORMAL,
+                INTERMEDIATE,
             ),
             (
                 "Schwätzt Dir Englesch?",
                 "Do you speak English?",
                 topics["basics"],
                 RegisterChoice.FORMAL,
+                INTERMEDIATE,
             ),
-            # Food
+            # Basics - Advanced
+            (
+                "Kënnt Dir dat widderhuelen?",
+                "Can you repeat that?",
+                topics["basics"],
+                RegisterChoice.FORMAL,
+                ADVANCED,
+            ),
+            # Food - Beginner
             (
                 "Ech hunn Honger",
                 "I am hungry",
                 topics["food"],
                 RegisterChoice.NEUTRAL,
+                BEGINNER,
             ),
             (
                 "Ech hunn Duuscht",
                 "I am thirsty",
                 topics["food"],
                 RegisterChoice.NEUTRAL,
+                BEGINNER,
             ),
+            # Food - Advanced
             (
                 "D'Rechnung, wann ech gelift",
                 "The bill, please",
                 topics["food"],
                 RegisterChoice.FORMAL,
+                ADVANCED,
             ),
-            # Travel
+            # Travel - Beginner
             (
                 "Wou ass...?",
                 "Where is...?",
                 topics["travel"],
                 RegisterChoice.NEUTRAL,
+                BEGINNER,
             ),
+            # Travel - Intermediate
             (
                 "Wéi wäit ass et?",
                 "How far is it?",
                 topics["travel"],
                 RegisterChoice.NEUTRAL,
+                INTERMEDIATE,
             ),
+            # Travel - Advanced
             (
                 "Ech géif gär eng Kaart",
                 "I would like a ticket",
                 topics["travel"],
                 RegisterChoice.FORMAL,
+                ADVANCED,
             ),
         ]
 
         count = 0
-        for lux, eng, topic, register in phrase_data:
+        for lux, eng, topic, register, difficulty in phrase_data:
             card, created = PhraseCard.objects.get_or_create(
                 luxembourgish=lux,
                 english=eng,
-                defaults={"difficulty_level": ADVANCED, "register": register},
+                defaults={"difficulty_level": difficulty, "register": register},
             )
             if created:
                 card.topics.add(topic)
